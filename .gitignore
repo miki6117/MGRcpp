@@ -1,0 +1,7 @@
+build/
+build_fedora/
+FrontPanel/
+.vscode/
+.DS_Store
+HDL/
+old_files/
