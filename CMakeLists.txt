@@ -9,7 +9,7 @@ set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_COMPILER /usr/bin/c++)
 
 # set (CPP_SOURCE fifo_test_performance.cpp performance.hpp config.cpp data.cpp)
-set (CPP_SOURCE main.cpp)
+set (CPP_SOURCE config.cpp)
 
 if(WIN32)
 include_directories ("/usr/local/include" "/usr/lib64")
@@ -18,14 +18,25 @@ link_directories ("${PerformTest_SOURCE_DIR}/FrontPanel/lib/Win32" "${PerformTes
 set (LIBS ${LIBS} ${PerformTest_SOURCE_DIR}/libconfig/libconfig++.lib)
 set (LIBS ${LIBS} ${PerformTest_SOURCE_DIR}/FrontPanel/lib/Win32/okFrontPanel.lib)
 elseif(UNIX)
-    # include_directories ("${PerformTest_SOURCE_DIR}/FrontPanel/include")
-    # link_directories ("${PerformTest_SOURCE_DIR}/FrontPanel/lib/Mac")
+    find_library (LIBCONFIG_LIBRARY NAMES libconfig++.so PATHS /usr/lib/ /usr/lib64/)
+    find_path (LIBCONFIG_INCLUDE libconfig.h++ /usr/include)
+    if (LIBCONFIG_LIBRARY)
+        message(STATUS "Libconfig library found")
+    else()
+        message(FATAL_ERROR "Libconfig not found! You should define your own path!")
+    endif()
 
-    # YOU HAVE TO DEFINE YOUR OWN PATH FOR LIBCONFIG LIBRARY
-    # find_path(LIBCONFIG_INCLUDE_DIR libconfig.h++ /usr/lib64)
-    find_library(LIBCONFIG_LIBRAY libconfig++.so.9 /usr/lib64)
+    include_directories(${LIBCONFIG_INCLUDE})
+
+    find_library (GLOG_LIBRARY NAMES libglog.so PATHS /usr/local/lib/)
+    find_path (GLOG_INCLUDE glog /usr/local/include)
+    if (GLOG_LIBRARY)
+        message(STATUS "GLOG library found")
+    else()
+        message(FATAL_ERROR "GLOG not found! You should define your own path!")
+    endif()
     find_library(FRONTPANEL_LIBRAY libokFrontPanel.so /usr/local/lib)
-
+    include_directories("${PROJECT_BINARY_DIR}")
     # if (LIBCONFIG_INCLUDE_DIR AND LIBCONFIG_LIBRARY)
     if (FRONTPANEL_LIBRAY)
         message(STATUS "FrontPanel library found")
@@ -40,6 +51,7 @@ elseif(UNIX)
     # endif()
 
     set (LIBS ${LIBS} ${LIBCONFIG_LIBRARY})
+    set (LIBS ${LIBS} ${GLOG_LIBRARY})
     set (LIBS ${LIBS} ${FRONTPANEL_LIBRAY})
 endif(WIN32)
 
