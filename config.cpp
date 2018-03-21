@@ -1,5 +1,25 @@
 #include "performance.h"
 
+void Configurations::writeHeadersToResultFile()
+{
+    std::fstream result_file;
+    result_file.open(results_path, std::ios::out | std::ios::app);
+    if (result_file.good())
+    {
+        for (const auto &header : headers_v)
+        {
+            result_file << header << result_sep;
+        }
+        result_file << std::endl;
+        result_file.close();
+        LOG(INFO) << "Headers have been written to: " << results_path;
+    }
+    else
+    {
+        LOG(FATAL) << "Unable to open " << results_path;
+    }
+}
+
 template <class T>
 void Configurations::vectorParser (std::vector<T> &parse_v, std::vector<T> &default_v, 
                                    const libconfig::Setting &setting, const char *option)

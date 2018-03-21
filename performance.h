@@ -53,7 +53,6 @@ class Configurations
         std::string bitfiles_path;
 
         // Parameters from 'output' scope
-        std::vector<std::string> headers_v;
         std::string results_path;
         std::string result_sep;
 
@@ -75,10 +74,13 @@ class Configurations
         std::map<std::string, unsigned int> pattern_m 
             {{"counter_8bit", COUNTER_8BIT}, {"counter_32bit", COUNTER_32BIT}, 
              {"walking_1", WALKING_1}};
+        
+        void writeHeadersToResultFile();
 
     private:
         const std::regex path_regex{"(\\.|\\.\\.)[a-zA-Z0-9/\\ _-]*/$"};
-
+        std::vector<std::string> headers_v;
+        
         // Default values for paramaters
         std::vector<std::string> headers_default {"Time", "Mode", "Direction",
                 "FifoMemoryType", "FifoDepth", "PatternSize", "DataPattern", 
