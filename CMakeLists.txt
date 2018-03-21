@@ -8,7 +8,7 @@ endif()
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_COMPILER /usr/bin/c++)
 
-set (CPP_SOURCE config.cpp)
+set (CPP_SOURCE config.cpp results.cpp)
 
 find_library (LIBCONFIG_LIBRARY NAMES libconfig++.so PATHS /usr/lib/ /usr/lib64/)
 find_path (LIBCONFIG_INCLUDE libconfig.h++ /usr/include)

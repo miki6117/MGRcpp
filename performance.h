@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <ctime>
+#include <fstream>
 #include <regex>
 #include <sstream>
 #include <string>
@@ -63,11 +64,17 @@ class Configurations
         std::vector<unsigned int> depth_v;
         std::vector<unsigned int> pattern_size_v;
         std::vector<std::string> pattern_v;
-        std::map<std::string, unsigned int> pattern_m;
-        std::map<std::string, unsigned int> mode_m;
-        std::map<std::string, unsigned int> direction_m;
         unsigned int statistic_iter;
         unsigned int iterations;
+
+        // Default hashes for params
+        std::map<std::string, unsigned int> mode_m 
+            {{"32bit", BIT32}, {"nonsym", NONSYM}, {"duplex", DUPLEX}};
+        std::map<std::string, unsigned int> direction_m 
+            {{"read", READ}, {"write", WRITE}};
+        std::map<std::string, unsigned int> pattern_m 
+            {{"counter_8bit", COUNTER_8BIT}, {"counter_32bit", COUNTER_32BIT}, 
+             {"walking_1", WALKING_1}};
 
     private:
         const std::regex path_regex{"(\\.|\\.\\.)[a-zA-Z0-9/\\ _-]*/$"};
@@ -95,16 +102,12 @@ class Configurations
         void configureOutputBitfiles(libconfig::Config &cfg);
         void configureOutput(libconfig::Config &cfg);
         void openConfigFile(const char *cfg_path, libconfig::Config &cfg);
-
 };
 
-class Results // TODO: add config object as pointer
+class Results
 {
     public:
-        Results(char results_separator, okCFrontPanel *dev, std::string results_file_name) : // TODO: if config object passed, then delete separator and results_file_name
-                rs{results_separator},
-                dev{dev},
-                results_file_name{results_file_name}
+        Results(okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
         {
             LOG(INFO) << "Results class initialized";
         };
@@ -114,89 +117,24 @@ class Results // TODO: add config object as pointer
             LOG(INFO) << "Destroying Results class";
         };
 
-        const char rs;
-        okCFrontPanel *dev;
-        const std::string results_file_name;
-        const int MEGA = 1000000;
-
-        unsigned int depth, errors, pattern_size, stat_iteration;
-        uint64_t fpga_counts;
-        double fpga_time_total, fpga_time_periteravg;
-        double fpga_speed, pc_speed;
-        double pc_time_total, pc_time_periteravg;
-        std::string direction, memory, pattern, width;
+        unsigned int depth, errors, pattern_size;
+        std::string mode, direction, memory, pattern;
         std::chrono::duration<double, std::micro> pc_duration_total;
 
         void saveResultsToFile();
 
     private:
+        const int MEGA = 1000000;
+        double fpga_time_total, fpga_time_periteravg;
+        double pc_time_total, pc_time_periteravg;
+        double fpga_speed, pc_speed;
+        uint64_t fpga_counts;
+        okCFrontPanel *dev;
+        Configurations &cfgs;
+
+        const std::string logTime();
         void countPCTime();
         void countFPGATime();
-        const std::string logTime();
-        
 };
-
-const std::string Results::logTime() // TODO: #include<ctime>
-{
-    time_t now = time(0);
-    struct tm tstruct;
-    char buf[80];
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
-
-    return buf;
-}
-
-void Results::countPCTime()
-{
-    pc_time_total = pc_duration_total.count();
-    pc_time_periteravg = pc_time_total / iterations;// TODO: iterations from config file!!
-    pc_speed = static_cast<double>(pattern_size) * MEGA / pc_time_periteravg;
-    LOG(INFO) << "Counted PC time for single duration: " << pc_time_periteravg << " msec";
-    LOG(INFO) << "Counted speed on PC side: " << pc_speed << " B/s";
-}
-
-void Results::countFPGATime()
-{
-    uint64_t number_of_counts;
-    dev->UpdateWireOuts();
-    number_of_counts = dev->GetWireOutValue(NUMBER_OF_COUNTS_A);
-    number_of_counts += static_cast<uint64_t>(dev->GetWireOutValue(NUMBER_OF_COUNTS_B) << 32);
-    if (direction_m[direction] == WRITE) errors = dev->GetWireOutValue(ERROR_COUNT); // TODO: direction_m from config file!
-
-    fpga_time_total = number_of_counts / FIFO_CLOCK;
-
-    fpga_time_periteravg = fpga_time_total / iterations;
-    fpga_speed = static_cast<double>(pattern_size) * MEGA / fpga_time_periteravg; // TODO: logs!
-    LOG(INFO) << "FPGA clock counts: " << number_of_counts;
-    LOG(INFO) << "Counted FPGA total transfer time: " << fpga_time_total << " msec";
-    LOG(INFO) << "Counted FPGA time for single duration: " << fpga_time_periteravg << " msec";
-    LOG(INFO) << "Counted speed on FPGA side: " << fpga_speed << " B/s";
-    LOG(WARNNG) << "Errors detected during transfer: " << errors;
-}
-
-void Results::saveResultsToFile()
-{
-    countPCTime();
-    countFPGATime();
-    std::fstream result_file;
-    result_file.open(results_file_name, std::ios::out | std::ios::app);
-    if (result_file.good())
-    {
-        result_file << logTime() << rs << width << rs << direction << rs;
-        result_file << memory << rs << depth << rs << pattern_size << rs;
-        result_file << pattern << rs << iterations << rs << stat_iteration << rs << fpga_counts << rs;
-        result_file << fpga_time_total << rs << fpga_time_periteravg << rs;
-        result_file << pc_time_total << rs << pc_time_periteravg << rs;
-        result_file << pc_speed << rs << fpga_speed  << rs << errors;
-        result_file << std::endl;
-        result_file.close();
-        LOG(INFO) << "All results saved to " << results_file_name;
-    }
-    else
-    {
-        LOG(FATAL) << "Unable to open " << results_file_name << " file during saving results";
-    }
-}
 
 #endif // FIFO_PERFORMANCE_H__

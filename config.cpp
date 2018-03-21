@@ -1,4 +1,4 @@
-#include"performance.h"
+#include "performance.h"
 
 template <class T>
 void Configurations::vectorParser (std::vector<T> &parse_v, std::vector<T> &default_v, 
