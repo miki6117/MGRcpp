@@ -5,3 +5,5 @@ FrontPanel/
 .DS_Store
 HDL/
 old_files/
+.idea/
+cmake-build-debug/

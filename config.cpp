@@ -1,4 +1,4 @@
-#include"config.h"
+#include"performance.h"
 
 template <class T>
 void FifoTestConfig::vectorParser (std::vector<T> &parse_v, std::vector<T> &default_v, 

@@ -1,5 +1,5 @@
-#ifndef FIFO_CONFIG_H__
-#define FIFO_CONFIG_H__
+#ifndef FIFO_PERFORMANCE_H__
+#define FIFO_PERFORMANCE_H__
 #include<regex>
 #include<string>
 #include<sstream>
@@ -89,4 +89,4 @@ class FifoTestConfig
 };
 
 
-#endif // FIFO_CONFIG_H__
+#endif // FIFO_PERFORMANCE_H__
