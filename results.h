@@ -15,8 +15,14 @@ class Results // TODO: add config object as pointer
                 rs{results_separator},
                 dev{dev},
                 results_file_name{results_file_name}
-                {}; //TODO: add log to constructor and destructor
-        ~Results() {};
+        {
+            LOG(INFO) << "Results class initialized";
+        };
+
+        ~Results()
+        {
+            LOG(INFO) << "Destroying Results class";
+        };
 
         const char rs;
         okCFrontPanel *dev;
@@ -36,34 +42,47 @@ class Results // TODO: add config object as pointer
     private:
         void countPCTime();
         void countFPGATime();
+        const std::string logTime();
         
 };
 
-void Results::countPCTime() // TODO: add logs here
+const std::string Results::logTime() // TODO: #include<ctime>
+{
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+
+    return buf;
+}
+
+void Results::countPCTime()
 {
     pc_time_total = pc_duration_total.count();
     pc_time_periteravg = pc_time_total / iterations;// TODO: iterations from config file!!
     pc_speed = static_cast<double>(pattern_size) * MEGA / pc_time_periteravg;
+    LOG(INFO) << "Counted PC time for single duration: " << pc_time_periteravg << " msec";
+    LOG(INFO) << "Counted speed on PC side: " << pc_speed << " B/s";
 }
 
 void Results::countFPGATime()
 {
     uint64_t number_of_counts;
     dev->UpdateWireOuts();
-    number_of_counts = dev->GetWireOutValue(NUMBER_OF_COUNTS_A); //TODO: enum from global header file
+    number_of_counts = dev->GetWireOutValue(NUMBER_OF_COUNTS_A);
     number_of_counts += static_cast<uint64_t>(dev->GetWireOutValue(NUMBER_OF_COUNTS_B) << 32);
     if (direction_m[direction] == WRITE) errors = dev->GetWireOutValue(ERROR_COUNT); // TODO: direction_m from config file!
 
-    fpga_time_total = number_of_counts / FIFO_CLOCK; // TODO: logs!
-    //TODO: FIFO_CLOCK const declaration!
-    // logAction("RESULT: Counts in FPGA: " + to_string(number_of_counts), false, false);
-    // logAction("RESULT: Number of errors during transfer: " + to_string(r.errors), false, false);
-    // logAction("RESULT: FPGA time [msec]: " + to_string(r.fpga_time_total / 1000), false, false);
+    fpga_time_total = number_of_counts / FIFO_CLOCK;
 
     fpga_time_periteravg = fpga_time_total / iterations;
     fpga_speed = static_cast<double>(pattern_size) * MEGA / fpga_time_periteravg; // TODO: logs!
-    // logAction("RESULT: FPGA single duration: " + to_string(r.fpga_time_periteravg), false, false);
-    // logAction("RESULT: FPGA total speed [B/s]: " + to_string(r.fpga_speed), false, false);
+    LOG(INFO) << "FPGA clock counts: " << number_of_counts;
+    LOG(INFO) << "Counted FPGA total transfer time: " << fpga_time_total << " msec";
+    LOG(INFO) << "Counted FPGA time for single duration: " << fpga_time_periteravg << " msec";
+    LOG(INFO) << "Counted speed on FPGA side: " << fpga_speed << " B/s";
+    LOG(WARNNG) << "Errors detected during transfer: " << errors;
 }
 
 void Results::saveResultsToFile()
@@ -72,9 +91,9 @@ void Results::saveResultsToFile()
     countFPGATime();
     std::fstream result_file;
     result_file.open(results_file_name, std::ios::out | std::ios::app);
- 	if (result_file.good())
+    if (result_file.good())
     {
-        result_file << logTime() << rs << width << rs << direction << rs; // TODO: log time!!
+        result_file << logTime() << rs << width << rs << direction << rs;
         result_file << memory << rs << depth << rs << pattern_size << rs;
         result_file << pattern << rs << iterations << rs << stat_iteration << rs << fpga_counts << rs;
         result_file << fpga_time_total << rs << fpga_time_periteravg << rs;
@@ -82,11 +101,11 @@ void Results::saveResultsToFile()
         result_file << pc_speed << rs << fpga_speed  << rs << errors;
         result_file << std::endl;
         result_file.close();
-        // logAction("INFO: All results saved to file: " + results_path + resultfile_name);
+        LOG(INFO) << "All results saved to " << results_file_name;
     }
     else
     {
-        // logAction("ERROR: Unable to open test_result.csv file", true);
+        LOG(FATAL) << "Unable to open " << results_file_name << " file during saving results";
     }
 }
 

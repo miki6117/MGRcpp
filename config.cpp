@@ -1,7 +1,7 @@
 #include"performance.h"
 
 template <class T>
-void FifoTestConfig::vectorParser (std::vector<T> &parse_v, std::vector<T> &default_v, 
+void Configurations::vectorParser (std::vector<T> &parse_v, std::vector<T> &default_v, 
                                    const libconfig::Setting &setting, const char *option)
 {
     for (auto i=0; i<setting[option].getLength(); i++)
@@ -13,7 +13,7 @@ void FifoTestConfig::vectorParser (std::vector<T> &parse_v, std::vector<T> &defa
         }
         else
         {
-            LOG(FATAL) << set << " <- is not valid parameter for " << option << " option!";
+            LOG(FATAL) << set << " <- is not a valid parameter for " << option << " option!";
         }
     }
     if (parse_v.size() == 0)
@@ -28,7 +28,7 @@ void FifoTestConfig::vectorParser (std::vector<T> &parse_v, std::vector<T> &defa
     else
     {
         std::stringstream parameters;
-        parameters << "Values for '" << option << "' parameter has following parameters: ";
+        parameters << "Following values for '" << option << "' parameter were parsed: ";
         for (const auto &par : parse_v)
         {
             parameters << par << " ";
@@ -37,7 +37,7 @@ void FifoTestConfig::vectorParser (std::vector<T> &parse_v, std::vector<T> &defa
     }
 }
 
-void FifoTestConfig::integerParams(const libconfig::Setting &params)
+void Configurations::integerParams(const libconfig::Setting &params)
 {
     iterations = params["iterations"];
     if (iterations <= 0)
@@ -56,7 +56,7 @@ void FifoTestConfig::integerParams(const libconfig::Setting &params)
     }
 }
 
-void FifoTestConfig::configureParams(libconfig::Config &cfg)
+void Configurations::configureParams(libconfig::Config &cfg)
 {
     const libconfig::Setting &params = cfg.lookup("params");
 
@@ -64,15 +64,15 @@ void FifoTestConfig::configureParams(libconfig::Config &cfg)
     vectorParser(direction_v, direction_default, params, "direction");
     vectorParser(memory_v, memory_default, params, "memory");
     vectorParser(depth_v, depth_default, params, "depth");
-    vectorParser(pattern_v, pattern_default, params, "patterns");
+    vectorParser(pattern_v, pattern_default, params, "pattern");
     for (auto size=16; size<=MAX_PATTERN_SIZE; size+=size)
         pattern_size_default.push_back(size);
-    vectorParser(pattern_size_v, pattern_size_default, params, "pattern_sizes");
+    vectorParser(pattern_size_v, pattern_size_default, params, "pattern_size");
 
     integerParams(params);
 }
 
-void FifoTestConfig::configureOutputParameters(const libconfig::Setting &output)
+void Configurations::configureOutputParameters(const libconfig::Setting &output)
 {
     vectorParser(headers_v, headers_default, output, "headers");
     results_path = output["results_path"].c_str();
@@ -85,14 +85,14 @@ void FifoTestConfig::configureOutputParameters(const libconfig::Setting &output)
     else 
     {
         LOG(FATAL) << "Inappropiate path to results file. The path must be "
-                   << "referred to current location";
+                   << "referred to the current location";
     }
 
     result_sep = output["result_sep"].c_str();
     LOG(INFO) << "Separator in results file set to: " << result_sep;
 }
 
-void FifoTestConfig::configureOutputBitfiles(libconfig::Config &cfg)
+void Configurations::configureOutputBitfiles(libconfig::Config &cfg)
 {
     bitfiles_path = cfg.lookup("bitfiles_path").c_str();
     if (std::regex_search(bitfiles_path, path_regex))
@@ -102,11 +102,11 @@ void FifoTestConfig::configureOutputBitfiles(libconfig::Config &cfg)
     else 
     {
         LOG(FATAL) << "Inappropiate path to bitfiles. The path must be referred "
-                   << "to current location";
+                   << "to the current location";
     }
 }
 
-void FifoTestConfig::configureOutput(libconfig::Config &cfg)
+void Configurations::configureOutput(libconfig::Config &cfg)
 {
     const libconfig::Setting &output = cfg.lookup("output");
     try
@@ -118,10 +118,10 @@ void FifoTestConfig::configureOutput(libconfig::Config &cfg)
     {
         LOG(FATAL) << "Setting type exception caught at: " << stexp.getPath();
     }
-    LOG(INFO) << "No setting type exception occured in config file";
+    LOG(INFO) << "No setting type exception occurred in config file";
 }
 
-void FifoTestConfig::openConfigFile(const char *cfg_path, libconfig::Config &cfg)
+void Configurations::openConfigFile(const char *cfg_path, libconfig::Config &cfg)
 {
     try
     {
@@ -137,5 +137,5 @@ void FifoTestConfig::openConfigFile(const char *cfg_path, libconfig::Config &cfg
         LOG(FATAL) << "Parse error at " << pex.getFile() << ":" << pex.getLine()
                 << " - " << pex.getError();
     }
-    LOG(INFO) << "No config file I/O nor parsing errors occured";
+    LOG(INFO) << "No config file I/O nor parsing errors occurred";
 }
