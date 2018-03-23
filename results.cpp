@@ -55,7 +55,7 @@ void Results::saveResultsToFile()
         result_file << pattern_size << rs;
         result_file << pattern << rs;
         result_file << cfgs.iterations << rs;
-        result_file << cfgs.statistic_iter << rs;
+        result_file << stat_iteration << rs;
         result_file << fpga_counts << rs;
         result_file << fpga_time_total << rs;
         result_file << fpga_time_periteravg << rs;
