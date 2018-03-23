@@ -1,6 +1,6 @@
 #ifndef FIFO_PERFORMANCE_H__
 #define FIFO_PERFORMANCE_H__
-
+// TODO: Change some logs to DLOG
 #include <chrono>
 #include <ctime>
 #include <fstream>
@@ -119,7 +119,7 @@ class Results
             LOG(INFO) << "Destroying Results class";
         };
 
-        unsigned int depth, errors, pattern_size;
+        unsigned int depth, errors, pattern_size, stat_iteration;
         std::string mode, direction, memory, pattern;
         std::chrono::duration<double, std::micro> pc_duration_total;
 
@@ -137,6 +137,31 @@ class Results
         const std::string logTime();
         void countPCTime();
         void countFPGATime();
+};
+
+class TransferTest
+{
+    public:
+        TransferTest (okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
+        {
+            LOG(INFO) << "TransferTest class initialized";
+        }
+        ~TransferTest();
+
+        void performTransferTest();
+    
+    private:
+        okCFrontPanel *dev;
+        Configurations &cfgs;
+        Results *r;
+
+        void runTestBasedOnParameters();
+        void checkIfOpen();
+        void setupFPGA();
+        void runonSpecificDepth(std::vector<unsigned int> &depth_v);
+        void specifyDepth();
+        void runOnSpecificMemory(std::vector<std::string> &memory_v);
+        void runOnSpecificMode();
 };
 
 #endif // FIFO_PERFORMANCE_H__

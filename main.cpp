@@ -17,6 +17,7 @@ void openDevice(okCFrontPanel *dev)
 }
 
 int main(int argc, char *argv[]) {
+  // google::InitGoogleLogging(argv[0]);
 	LOG(INFO) << "Program started";
 	okCFrontPanel *dev = new okCFrontPanel();
 	openDevice(dev);
