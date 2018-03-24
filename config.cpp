@@ -6,9 +6,13 @@ void Configurations::writeHeadersToResultFile()
     result_file.open(results_path, std::ios::out | std::ios::app);
     if (result_file.good())
     {
-        for (const auto &header : headers_v)
+        for (std::vector<std::string>::iterator it = headers_v.begin();
+             it != headers_v.end(); ++it)
         {
-            result_file << header << result_sep;
+            if (it != headers_v.end()-1)
+                result_file << *it << result_sep;
+            else
+                result_file << *it;
         }
         result_file << std::endl;
         result_file.close();
