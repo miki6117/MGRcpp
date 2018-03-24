@@ -37,7 +37,7 @@ class Configurations
     public:
         Configurations (const char *path_to_cfg)
         {
-            LOG(INFO) << "Initialization Configuration class";
+            DLOG(INFO) << "Initialization Configuration class";
             libconfig::Config cfg;
             openConfigFile(path_to_cfg, cfg);
             configureOutput(cfg);
@@ -47,7 +47,7 @@ class Configurations
 
         ~Configurations()
         {
-            LOG(INFO) << "Destroying FIFO config class";
+            DLOG(INFO) << "Destroying FIFO config class";
         }
         
         std::string bitfiles_path;
@@ -81,7 +81,7 @@ class Configurations
         const std::regex path_regex{"(\\.|\\.\\.)[a-zA-Z0-9/\\ _-]*/$"};
         std::vector<std::string> headers_v;
         
-        // Default values for paramaters
+        // Default values for paramaters TODO: change to const
         std::vector<std::string> headers_default {"Time", "Mode", "Direction",
                 "FifoMemoryType", "FifoDepth", "PatternSize", "DataPattern", 
                 "Iterations", "StatisticalIter", "CountsInFPGA", "FPGA time(total) [us]", 

@@ -29,6 +29,7 @@ void Configurations::vectorParser (std::vector<T> &parse_v, std::vector<T> &defa
         T set = setting[option][i];
         if (std::find(default_v.begin(), default_v.end(), set) != default_v.end())
         {
+            DLOG(INFO) << "Parsing " << setting[option][i] << " to parse_v";
             parse_v.push_back(setting[option][i]);
         }
         else
@@ -80,13 +81,17 @@ void Configurations::configureParams(libconfig::Config &cfg)
 {
     const libconfig::Setting &params = cfg.lookup("params");
 
-    vectorParser(mode_v, mode_default, params, "width");
+    vectorParser(mode_v, mode_default, params, "mode");
     vectorParser(direction_v, direction_default, params, "direction");
     vectorParser(memory_v, memory_default, params, "memory");
     vectorParser(depth_v, depth_default, params, "depth");
     vectorParser(pattern_v, pattern_default, params, "pattern");
-    for (auto size=16; size<=MAX_PATTERN_SIZE; size+=size)
+    for (unsigned int size=16; size<=MAX_PATTERN_SIZE; size+=size)
+    {
+        DLOG(INFO) << "Pushing back size to pattern_size_default: " << size;
         pattern_size_default.push_back(size);
+
+    }
     vectorParser(pattern_size_v, pattern_size_default, params, "pattern_size");
 
     integerParams(params);
@@ -138,7 +143,8 @@ void Configurations::configureOutput(libconfig::Config &cfg)
     {
         LOG(FATAL) << "Setting type exception caught at: " << stexp.getPath();
     }
-    LOG(INFO) << "No setting type exception occurred in config file";
+    LOG(INFO) << "No setting type exception occurred in config file "
+              << "while reading 'output' settings";
 }
 
 void Configurations::openConfigFile(const char *cfg_path, libconfig::Config &cfg)

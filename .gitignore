@@ -1,4 +1,5 @@
 build/
+debug/
 .vscode/
 HDL/
 old_files/
