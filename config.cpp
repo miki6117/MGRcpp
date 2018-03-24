@@ -29,7 +29,7 @@ void Configurations::vectorParser (std::vector<T> &parse_v, std::vector<T> &defa
         T set = setting[option][i];
         if (std::find(default_v.begin(), default_v.end(), set) != default_v.end())
         {
-            DLOG(INFO) << "Parsing " << setting[option][i] << " to parse_v";
+            // DLOG(INFO) << "Parsing " << setting[option][i] << " to parse_v";
             parse_v.push_back(setting[option][i]);
         }
         else

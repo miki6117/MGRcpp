@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   // google::InitGoogleLogging(argv[0]);
 	LOG(INFO) << "Program started";
 	okCFrontPanel *dev = new okCFrontPanel();
-	openDevice(dev);
+	// openDevice(dev);
 
 	const char *default_cfgpath;
     if (argc > 1) default_cfgpath = argv[1];
@@ -29,4 +29,7 @@ int main(int argc, char *argv[]) {
 
 	Configurations configs(default_cfgpath);
 	configs.writeHeadersToResultFile();
+
+  TransferTest tt(dev, configs);
+  tt.performTransferTest();
 }

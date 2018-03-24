@@ -1,39 +1,225 @@
 #include "performance.h"
 
+void TransferTest::writeTimer(unsigned char *data)
+{
+    // std::chrono::duration<double, std::micro> pc_duration_total;
+    std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
+
+    r->pc_duration_total = std::chrono::nanoseconds::zero();
+    dev->SetWireInValue(0x00, cfgs.pattern_m[r->pattern]); // TODO: AN ERROR IN BITFILES!!!
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TRIGGER, RESET);
+    LOG(INFO) << "START iterations";
+    timer_start = std::chrono::system_clock::now();
+    dev->ActivateTriggerIn(TRIGGER, START_TIMER);
+    for (auto i=0; i<cfgs.iterations; i++)
+    {
+        dev->ActivateTriggerIn(TRIGGER, RESET_PATTERN);
+        dev->WriteToPipeIn(PIPE_IN, r->pattern_size, data);
+    }
+    dev->ActivateTriggerIn(TRIGGER, STOP_TIMER);
+    timer_stop = std::chrono::system_clock::now();
+    r->pc_duration_total = timer_stop - timer_start;
+    // dev->UpdateWireOuts();
+    // r.errors = dev->GetWireOutValue(ERROR_COUNT);
+
+    LOG(INFO) << "Stop iterations";
+}
+
+void TransferTest::determineRegisterParameters(unsigned int mode, unsigned int &register_size, uint64_t &max_register_size)
+{
+    switch(mode)
+    {
+        case BIT32:
+            register_size = 4;
+            max_register_size = std::numeric_limits<int>::max();
+            break;
+
+        case NONSYM:
+            register_size = 8;
+            max_register_size = std::numeric_limits<uint64_t>::max();
+            break;
+
+        default:
+            LOG(FATAL) << "Wrong width mode detected";
+            break;
+    }
+    DLOG(INFO) << "Register size set to: " << register_size;
+}
+
+
+void TransferTest::generatedDataToWrite(unsigned char* data)
+{
+    unsigned int register_size;
+    uint64_t max_register_size;
+    auto pattern = cfgs.pattern_m[r->pattern];
+
+    // checkIfDataIsInit(data);
+    determineRegisterParameters(cfgs.mode_m[r->mode], register_size, max_register_size);
+
+    uint64_t iter = 0;
+    if (pattern == COUNTER_8BIT)
+    {
+        for (auto i = 0; i < r->pattern_size; i++)
+        {
+            data[i] = static_cast<unsigned char>(iter);
+            if (iter > max_register_size) iter = 0;
+            else ++iter;
+        }
+    }
+    else if (pattern == COUNTER_32BIT)
+    {
+        for (auto i = 0; i < r->pattern_size; i+=register_size)
+        {
+            for (auto j = 0; j < register_size; j++)
+                data[i+j] = static_cast<unsigned char>((iter >> j*8) & 0xFF);
+            if (iter > max_register_size) iter = 0;
+            else ++iter;
+        }
+    }
+    else if (pattern == WALKING_1)
+    {
+        iter = 1;
+        for (int i=0; i < r->pattern_size; i+=register_size)
+        {
+            for (auto j=0; j < register_size; j++)
+                data[i+j] = static_cast<unsigned char>((iter >> j*8) & 0xFF);
+            
+            if (iter > max_register_size) iter = 1;
+            else iter *= 2;
+        }
+    }
+
+    DLOG(INFO) << "Data to write generated";
+}
+
+unsigned int TransferTest::checkErrorsFromRead(unsigned char *data)
+{
+    unsigned int errors = 0;
+    unsigned int register_size = 4;
+    uint64_t max_register_size = std::numeric_limits<int>::max();
+    auto pattern = cfgs.pattern_m[r->pattern];
+
+    if (cfgs.mode_m[r->mode] == NONSYM)
+    {
+        register_size = 8;
+        max_register_size = std::numeric_limits<uint64_t>::max();
+    }
+    DLOG(INFO) << "Register size set to: " << register_size;
+
+    if (pattern == COUNTER_8BIT)
+    {
+        uint64_t iter = 0;
+        for (auto i = 0; i < r->pattern_size; i++)
+        {
+            if (data[i] != static_cast<unsigned char>(iter)) errors += 1;
+            if (iter > max_register_size) iter = 0;
+            else ++iter;
+        }
+    }
+
+    else if (pattern == COUNTER_32BIT)
+    {
+        uint64_t iter = 0;
+        for (auto i = 0; i < r->pattern_size; i+=register_size)
+        {
+            for (auto j = 0; j < register_size; j++)
+            {
+                if (data[i+j] != static_cast<unsigned char>((iter >> j*8) & 0xFF)) errors += 1;
+            }
+            if (iter > max_register_size) iter = 0;
+            else ++iter;
+        }
+    }
+
+    else if (pattern == WALKING_1)
+    {
+        uint64_t iter = 1;
+        for (auto i = 0; i < r->pattern_size; i+=register_size)
+        {
+            for (auto j = 0; j < register_size; j++)
+            {
+                if (data[i+j] != static_cast<unsigned char>((iter >> j*8) & 0xFF)) errors +=1;
+            }
+            if (iter > max_register_size) iter = 1;
+            else iter *= 2;
+        }
+    }
+
+    else
+    {
+        LOG(FATAL) << "Wrong pattern to check";
+    }
+
+    DLOG(INFO) << "Errors detected: " << errors;
+    return errors;
+}
+
+void TransferTest::readTimer(unsigned char *data)
+{
+    // std::chrono::duration<double, std::micro> pc_duration_total;
+    std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
+
+    r->pc_duration_total = std::chrono::nanoseconds::zero();
+    dev->SetWireInValue(PATTERN_TO_GENERATE, cfgs.pattern_m[r->pattern]);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TRIGGER, RESET);
+    LOG(INFO) << "START iterations";
+    for (unsigned int i=0; i<cfgs.iterations; i++)
+    {
+        DLOG(INFO) << "Current iteration: " << i;
+        dev->ActivateTriggerIn(TRIGGER, RESET_PATTERN);
+        timer_start = std::chrono::system_clock::now();
+        dev->ActivateTriggerIn(TRIGGER, START_TIMER);
+
+        dev->ReadFromPipeOut(PIPE_OUT, r->pattern_size, data);
+
+        dev->ActivateTriggerIn(TRIGGER, STOP_TIMER);
+        timer_stop = std::chrono::system_clock::now();
+
+        r->pc_duration_total += (timer_stop - timer_start);
+        r->errors = checkErrorsFromRead(data);
+    }
+    LOG(INFO) << "Stop iterations";
+}
+
 void TransferTest::runTestBasedOnParameters()
 {
-    DLOG(INFO) << "Current width mode: " << r->mode;
+    DLOG(INFO) << "Current mode: " << r->mode;
     DLOG(INFO) << "Current direction transfer: " << r->direction;
     DLOG(INFO) << "Current FIFO memory: " << r->memory;
     DLOG(INFO) << "Current FIFO depth value: " << r->depth;
     DLOG(INFO) << "Current size: " << r->pattern_size;
     DLOG(INFO) << "Current pattern: " << r->pattern;
 
-    LOG(INFO) <<  "Detecting test mode...";
-    unsigned char* data = new unsigned char[r.pattern_size];
+    unsigned char* data = new unsigned char[r->pattern_size];
+    auto mode = cfgs.mode_m[r->mode];
     auto dir = cfgs.direction_m[r->direction];
 
-    if (dir == READ)
+    if (mode != DUPLEX)
     {
-        LOG(INFO) << "Read mode detected";
-        readModeTimer(dev, r, data);
+        if (dir == READ)
+        {
+            DLOG(INFO) << "Setting read timer";
+            readTimer(data);
+        }
+        else if (dir == WRITE)
+        {
+            LOG(INFO) << "Setting write timer";
+            generatedDataToWrite(data);
+            writeTimer(data);
+        }
     }
-    else if (dir == WRITE)
-    {
-        LOG(INFO) << "Write mode detected";
-        generatedDataToWrite(data, patterns_m[r.pattern], r.pattern_size, width_m[r.width]);
-        writeModeTimer(dev, r, data);
-    }
-    saveResultToFile(r);
+    r->saveResultsToFile();
     delete[] data;
 }
 
 void TransferTest::checkIfOpen()
 {
-    LOG(INFO) << "Checking if device is open...";
+    DLOG(INFO) << "Checking if device is open...";
     if (dev->IsOpen())
     {
-        LOG(INFO) << "Device is open";
+        DLOG(INFO) << "Device is open";
     }
     else
     {
@@ -44,11 +230,11 @@ void TransferTest::checkIfOpen()
 void TransferTest::setupFPGA()
 {
     std::string bitfiles = cfgs.bitfiles_path + r->mode + "/";
-    LOG(INFO) << "Path to bitfiles for current transfer mode: " << bitfiles;
+    DLOG(INFO) << "Path to bitfiles for current transfer mode: " << bitfiles;
     std::string bitfile_name = r->direction + "_" + r->mode + "_fifo_" + r->memory + \
                                "_" + std::to_string(r->depth) + ".bit";
     std::string bitfile_to_load = bitfiles + bitfile_name;
-    LOG(INFO) << "FPGA configure file: " << bitfile_to_load;
+    DLOG(INFO) << "FPGA configure file: " << bitfile_to_load;
     auto err_code = dev->ConfigureFPGA(bitfile_to_load);
     if (err_code == okCFrontPanel::NoError) 
     {
@@ -56,30 +242,31 @@ void TransferTest::setupFPGA()
 	} 
     else 
     {
-        LOG(FATAL) << "FPGA configuration failed: " << dev->GetErrorString(err_code);
+        LOG(FATAL) << "FPGA configuration failed [" << dev->GetErrorString(err_code)
+                   << "] for file " << bitfile_name;
     }
 }
 
-void TransferTest::runonSpecificDepth(std::vector<unsigned int> &depth_v)
+void TransferTest::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
 {
     for (const auto &depth : depth_v)
     {
         r->depth = depth;
-        LOG(INFO) << "FIFO depth value set to: " << depth;
+        DLOG(INFO) << "FIFO depth value set to: " << depth;
         setupFPGA();
         for (const auto &size : cfgs.pattern_size_v)
         {
             r->pattern_size = size;
-            LOG(INFO) << "Size set to: " << size;
+            DLOG(INFO) << "Pattern size set to: " << size;
             checkIfOpen();
             for (const auto &pattern : cfgs.pattern_v)
             {
+                DLOG(INFO) << "Current pattern: " << pattern;
                 for (auto i = 1; i <= cfgs.statistic_iter; i++)
                 {
-                    LOG(INFO) << "Current statistical iteration: " << i;
+                    DLOG(INFO) << "Current statistical iteration: " << i;
                     r->stat_iteration = i;
                     r->pattern = pattern;
-                    LOG(INFO) << "Current pattern: " << pattern;
                     runTestBasedOnParameters();
                 }
             }
@@ -93,15 +280,20 @@ void TransferTest::specifyDepth() // TODO: logs
     auto direction = cfgs.direction_m[r->direction];
     auto mode = cfgs.mode_m[r->mode];
 
+    DLOG(INFO) << "Specifying depth based on " << mode << " mode and " 
+               << direction << " direction";
+
     if (mode == NONSYM && direction == WRITE)
     {
         specific_depth_v = {32, 64, 256, 1024}; //TODO: Fill in
+        DLOG(INFO) << "Depth values specified for NONSYM mode and WRITE direction";
     }
     else
     {
         specific_depth_v = cfgs.depth_v;
+        DLOG(INFO) << "Depth values copied from config file";
     }
-    runonSpecificDepth(specific_depth_v);
+    runOnSpecificDepth(specific_depth_v);
 }
 
 void TransferTest::runOnSpecificMemory(std::vector<std::string> &memory_v)
@@ -109,11 +301,11 @@ void TransferTest::runOnSpecificMemory(std::vector<std::string> &memory_v)
     for (const auto &direction : cfgs.direction_v)
     {
         r->direction = direction;
-        LOG(INFO) << "Direction transfer mode set to: " << direction;
+        DLOG(INFO) << "Direction transfer mode set to: " << direction;
         for (const auto &memory : memory_v)
         {
             r->memory = memory;
-            LOG(INFO) << "FIFO memory mode set to: " << memory;
+            DLOG(INFO) << "FIFO memory mode set to: " << memory;
             specifyDepth();
         }
     }
@@ -132,13 +324,13 @@ void TransferTest::runOnSpecificMode()
         
         case NONSYM:
             memory_v_for_specific_mode = {"blockram"};
-            LOG(WARNING) << "FYI: For nonsym mode, the only valid memory is blockram";
+            DLOG(WARNING) << "FYI: For nonsym mode, the only valid memory is blockram";
             break;
 
         case DUPLEX:
             break;
     }
-    LOG(INFO) << "Initialized memory vector for: " << r->mode;
+    DLOG(INFO) << "Initialized memory vector for: " << r->mode;
 
     runOnSpecificMemory(memory_v_for_specific_mode);
 }
@@ -146,10 +338,11 @@ void TransferTest::runOnSpecificMode()
 void TransferTest::performTransferTest()
 {
     r = new Results(dev, cfgs);
+    DLOG(INFO) << "Memory allocated for Results class";
     for (const auto &mode : cfgs.mode_v)
     {
         r->mode = mode;
-        LOG(INFO) <<  "Transfer mode set to: : " << mode;
+        DLOG(INFO) <<  "Transfer mode set to: : " << mode;
         runOnSpecificMode();
     }
     delete r;

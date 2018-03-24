@@ -2,6 +2,7 @@
 #define FIFO_PERFORMANCE_H__
 // TODO: Change some logs to DLOG
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <fstream>
 #include <regex>
@@ -35,7 +36,7 @@ enum Endpoints
 class Configurations 
 {
     public:
-        Configurations (const char *path_to_cfg)
+        Configurations(const char *path_to_cfg)
         {
             DLOG(INFO) << "Initialization Configuration class";
             libconfig::Config cfg;
@@ -111,12 +112,12 @@ class Results
     public:
         Results(okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
         {
-            LOG(INFO) << "Results class initialized";
+            DLOG(INFO) << "Results class initialized";
         };
 
         ~Results()
         {
-            LOG(INFO) << "Destroying Results class";
+            DLOG(INFO) << "Destroying Results class";
         };
 
         unsigned int depth, errors, pattern_size, stat_iteration;
@@ -142,11 +143,14 @@ class Results
 class TransferTest
 {
     public:
-        TransferTest (okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
+        TransferTest(okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
         {
-            LOG(INFO) << "TransferTest class initialized";
+            DLOG(INFO) << "TransferTest class initialized";
         }
-        ~TransferTest();
+        ~TransferTest()
+        {
+            DLOG(INFO) << "Destroying TransferTest class";
+        }
 
         void performTransferTest();
     
@@ -155,10 +159,16 @@ class TransferTest
         Configurations &cfgs;
         Results *r;
 
+// void duplexTimer();
+        void writeTimer(unsigned char *data);
+        void determineRegisterParameters(unsigned int mode, unsigned int &register_size, uint64_t &max_register_size);
+        void generatedDataToWrite(unsigned char* data);
+        unsigned int checkErrorsFromRead(unsigned char *data);
+        void readTimer(unsigned char *data);
         void runTestBasedOnParameters();
         void checkIfOpen();
         void setupFPGA();
-        void runonSpecificDepth(std::vector<unsigned int> &depth_v);
+        void runOnSpecificDepth(std::vector<unsigned int> &depth_v);
         void specifyDepth();
         void runOnSpecificMemory(std::vector<std::string> &memory_v);
         void runOnSpecificMode();
