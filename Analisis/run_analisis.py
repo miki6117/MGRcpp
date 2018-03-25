@@ -144,7 +144,7 @@ class ResultsHandler(object):
 
     def __iterate_using_params(self, first_param_label, second_param_label, third_param_label):
         list_of_param_dicts = []
-        for width in self.basic_properties['Width']:
+        for mode in self.basic_properties['Mode']:
             for direction in self.basic_properties['Direction']:
                 for first_param in self.basic_properties[first_param_label]:
                     for second_param in self.basic_properties[second_param_label]:
@@ -155,7 +155,7 @@ class ResultsHandler(object):
                             y_param = []
                             yerr_param = []
                             for row in self.list_of_results_dicts:
-                                if ((width == row['Width']) and (direction == row['Direction']) and
+                                if ((mode == row['Mode']) and (direction == row['Direction']) and
                                     (first_param == row[first_param_label]) and
                                     (second_param == row[second_param_label]) and
                                     (third_param == row[third_param_label])):
@@ -172,7 +172,7 @@ class ResultsHandler(object):
                             else:
                                 is_results_list_non_empty = False
                         param_dict = {
-                            'width': width,
+                            'mode': mode,
                             'direction': direction,
                             'first_param': first_param,
                             'second_param': second_param,
@@ -204,10 +204,10 @@ class ResultsHandler(object):
                 figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
                 if separate_third_parameters:
                     figure.set_title(results_dict['first_param'], results_dict['second_param'])
-                    figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['width'], results_dict['direction'])
+                    figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
             if not separate_third_parameters:
                 figure.set_title(results_dict['first_param'], results_dict['second_param'])
-                figure.save_fig(str(plot_index) + '_' + str(i), results_dict['width'], results_dict['direction'])
+                figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
 
 
 class Figure(object):

@@ -1,11 +1,11 @@
 """Specify path to csv file that contains transfer results"""
-CSV_FILE = './test_result.csv'
+CSV_FILE = '../debug/results/test_result.csv'
 
 """Specify separator in csv file"""
 SEPARATOR = ';'
 
 """Specify number of statistical iterations based on config file"""
-STATISTICAL_ITERATIONS = 10
+STATISTICAL_ITERATIONS = 2
 
 """Check if any error occured during transfer and return it on stdout"""
 CHECK_FOR_ERRORS = False
@@ -23,13 +23,13 @@ PARAMETERS_SEPARATED = False
 INT_VALUES = ['FifoDepth', 'PatternSize', 'StatisticalIter', 'Iterations', 'Errors']
 
 """Results that need casting to floats"""
-FLOAT_VALUES = ['PC time(total) [us]', 'PC time(iteration) [us]',
+FLOAT_VALUES = ['PC time(total) [us]', 'PC time(per iteration) [us]',
                 'FPGA time(total) [us]', 'CountsInFPGA',
-                'FPGA time(iteration) [us]', 'SpeedPC [B/s]',
+                'FPGA time(per iteration) [us]', 'SpeedPC [B/s]',
                 'SpeedFPGA [B/s]']
 
 """Names of heads after refactoring"""
-REFACTORED_HEADS = ['Width', 'Direction', 'MemoryType', 'FifoDepth', 'PatternSize', 'DataPattern', 'SpeedPC', 'u(PC)', 'SpeedFPGA', 'u(FPGA)', 'Average', 'u(av)']
+REFACTORED_HEADS = ['Mode', 'Direction', 'FifoMemoryType', 'FifoDepth', 'PatternSize', 'DataPattern', 'SpeedPC', 'u(PC)', 'SpeedFPGA', 'u(FPGA)', 'Average', 'u(av)']
 
 """Metadata for figure objects"""
 FIGURE_METADATA = {
@@ -45,9 +45,9 @@ FIGURE_METADATA = {
 
 """Properties that can be combined with each other"""
 BASIC_PROPERTIES = {
-    'Width' : ['nonsym', '32bit'],
+    'Mode' : ['nonsym', '32bit'],
     'Direction' : ['read', 'write'],
-    'MemoryType' : ['blockram', 'distributedram', 'shiftregister'],
+    'FifoMemoryType' : ['blockram', 'distributedram', 'shiftregister'],
     'FifoDepth': [16, 32, 64, 256, 1024],
     'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1']
 }
@@ -57,7 +57,7 @@ PLOTTING_OPTIONS = {
     'memtype_depth_pattern' : {
         'title' : 'Fifo memory type: {}. Depth = {}',
         'savefig' : '{}_{}_{}_patterns.png',
-        'first_param' : 'MemoryType',
+        'first_param' : 'FifoMemoryType',
         'second_param' : 'FifoDepth',
         'third_param' : 'DataPattern',
         'legend' : {
@@ -71,7 +71,7 @@ PLOTTING_OPTIONS = {
         'savefig' : '{}_{}_{}_memory_types.png',
         'first_param' : 'FifoDepth',
         'second_param' : 'DataPattern',
-        'third_param' : 'MemoryType',
+        'third_param' : 'FifoMemoryType',
         'legend' : {
             'blockram' : 'ro',
             'distributedram' : 'g*',
@@ -82,7 +82,7 @@ PLOTTING_OPTIONS = {
         'title' : 'Pattern type: {}. Fifo memory type: {}',
         'savefig' : '{}_{}_{}_depths.png',
         'first_param' : 'DataPattern',
-        'second_param' : 'MemoryType',
+        'second_param' : 'FifoMemoryType',
         'third_param' : 'FifoDepth',
         'legend' : {
             16 : 'ro',
