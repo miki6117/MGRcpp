@@ -1,5 +1,9 @@
 build/
 debug/
 .vscode/
-HDL/
+HDL/bitfiles/
 old_files/
+Analisis/
+!Analisis/cfg.py
+!Analisis/run_analisis.py
+TODOs
