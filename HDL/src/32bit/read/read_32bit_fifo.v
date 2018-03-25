@@ -15,14 +15,15 @@ reg  [63:0] clk_counts;
 reg         timer_on;
 wire [31:0] fifo_datain;
 wire [31:0] fifo_dataout;
-wire [31:0] generated_data;
 wire [31:0] pattern_to_generate;
 wire [31:0] pipe_out_data;
 wire [31:0] trigger;
 
-assign reset       = trigger[0];
-assign start_timer = trigger[1];
-assign stop_timer  = trigger[2];
+wire [31:0] generated_data;
+
+assign reset         = trigger[0];
+assign start_timer   = trigger[1];
+assign stop_timer    = trigger[2];
 assign reset_pattern = trigger[3];
 
 assign led[0] = ~reset;
@@ -31,7 +32,7 @@ assign led[2] = ~timer_on;
 assign led[3] = ~stop_timer;
 assign led[4] = ~fifo_write_enable;
 assign led[5] = ~fifo_read_enable;
-assign led[6] = ~fifo_empty;
+assign led[6] = 1'b1;
 assign led[7] = ~1'b1;
 
 assign enable_gener = timer_on & ~fifo_almost_full; 
@@ -39,6 +40,7 @@ assign fifo_datain = generated_data;
 
 assign fifo_read_enable = pipe_out_read;
 assign pipe_out_data = fifo_dataout;
+assign reset_fifo = reset | reset_pattern;
 
 always @(posedge okClk) begin
 	if (reset) begin
@@ -62,12 +64,11 @@ end
 
 FIFO_32bit fifoForReadTest (
 	.clk(okClk),
-	.rst(reset_pattern),
+	.rst(reset_fifo),
 	.din(fifo_datain),
 	.wr_en(fifo_write_enable),
 	.rd_en(fifo_read_enable),
 	.dout(fifo_dataout),
-	.empty(fifo_empty),
 	.almost_full(fifo_almost_full)
 );
 
@@ -94,14 +95,10 @@ okHost okHI(
 
 okWireOR # (.N(N_WIRE_OR)) wireOR (okEH, okEHx);
 
-okWireIn     ep01 (.okHE(okHE),                             .ep_addr(8'h01), .ep_dataout(pattern_to_generate));
+okWireIn     ep00 (.okHE(okHE),                             .ep_addr(8'h00), .ep_dataout(pattern_to_generate));
 okTriggerIn  ep40 (.okHE(okHE),                             .ep_addr(8'h40), .ep_clk(okClk), .ep_trigger(trigger));
 okWireOut    ep20 (.okHE(okHE), .okEH(okEHx[ 0*65 +: 65 ]), .ep_addr(8'h20), .ep_datain(clk_counts[31:0]));
 okWireOut    ep21 (.okHE(okHE), .okEH(okEHx[ 1*65 +: 65 ]), .ep_addr(8'h21), .ep_datain(clk_counts[63:32]));
 okPipeOut    epa0 (.okHE(okHE), .okEH(okEHx[ 2*65 +: 65 ]), .ep_addr(8'ha0), .ep_read(pipe_out_read), .ep_datain(pipe_out_data));
-// okWireIn     ep00 (.okHE(okHE),                             .ep_addr(8'h00), .ep_dataout(iterations));
-// okBTPipeOut  epa0 (.okHE(okHE), .okEH(okEHx[ 2*65 +: 65 ]), .ep_addr(8'ha0), .ep_datain(pipe_out_data), .ep_read(pipe_out_read), .ep_blockstrobe(pipe_out_blockstrobe), .ep_ready(pipe_out_ready));
-// okWireOut    ep22 (.okHE(okHE), .okEH(okEHx[ 2*65 +: 65 ]), .ep_addr(8'h22), .ep_datain(error_count));
-// okPipeIn     ep80 (.okHE(okHE), .okEH(okEHx[ 3*65 +: 65 ]), .ep_addr(8'h80), .ep_write(pipe_in_write), .ep_dataout(pipe_in_data));
 
 endmodule
