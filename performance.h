@@ -26,7 +26,7 @@ enum Endpoints
     NUMBER_OF_COUNTS_A = 0x20,
     NUMBER_OF_COUNTS_B = 0x21,
     ERROR_COUNT = 0x22,
-    PATTERN_TO_GENERATE = 0x01, // TODO: Really? Check!
+    PATTERN_TO_GENERATE = 0x00, // TODO: Really? Check!
     PIPE_IN = 0x80,
     PIPE_OUT = 0xa0,
     TRIGGER = 0x40
@@ -159,7 +159,8 @@ class TransferTest
         Configurations &cfgs;
         Results *r;
 
-// void duplexTimer();
+        void duplexTimer(unsigned char *data, const int &block_size);
+        void runDuplexMode();
         void writeTimer(unsigned char *data);
         void determineRegisterParameters(unsigned int mode, unsigned int &register_size, uint64_t &max_register_size);
         void generatedDataToWrite(unsigned char* data);

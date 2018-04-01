@@ -1,4 +1,6 @@
 #include "performance.h"
+#include <limits>
+#include <iostream> // TODO: delete
 
 void TransferTest::writeTimer(unsigned char *data)
 {
@@ -6,7 +8,7 @@ void TransferTest::writeTimer(unsigned char *data)
     std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
 
     r->pc_duration_total = std::chrono::nanoseconds::zero();
-    dev->SetWireInValue(0x00, cfgs.pattern_m[r->pattern]); // TODO: AN ERROR IN BITFILES!!!
+    dev->SetWireInValue(PATTERN_TO_GENERATE, cfgs.pattern_m[r->pattern]);
     dev->UpdateWireIns();
     dev->ActivateTriggerIn(TRIGGER, RESET);
     LOG(INFO) << "START iterations";
@@ -38,6 +40,11 @@ void TransferTest::determineRegisterParameters(unsigned int mode, unsigned int &
         case NONSYM:
             register_size = 8;
             max_register_size = std::numeric_limits<uint64_t>::max();
+            break;
+
+        case DUPLEX:
+            register_size = 4;
+            max_register_size = std::numeric_limits<int>::max();
             break;
 
         default:
@@ -80,12 +87,13 @@ void TransferTest::generatedDataToWrite(unsigned char* data)
     else if (pattern == WALKING_1)
     {
         iter = 1;
+        uint64_t last_possible_value = max_register_size / 2 + 1;
         for (int i=0; i < r->pattern_size; i+=register_size)
         {
             for (auto j=0; j < register_size; j++)
                 data[i+j] = static_cast<unsigned char>((iter >> j*8) & 0xFF);
             
-            if (iter > max_register_size) iter = 1;
+            if (iter == last_possible_value) iter = 1;
             else iter *= 2;
         }
     }
@@ -106,6 +114,7 @@ unsigned int TransferTest::checkErrorsFromRead(unsigned char *data)
         max_register_size = std::numeric_limits<uint64_t>::max();
     }
     DLOG(INFO) << "Register size set to: " << register_size;
+
 
     if (pattern == COUNTER_8BIT)
     {
@@ -135,13 +144,14 @@ unsigned int TransferTest::checkErrorsFromRead(unsigned char *data)
     else if (pattern == WALKING_1)
     {
         uint64_t iter = 1;
+        uint64_t last_possible_value = max_register_size / 2 + 1;
         for (auto i = 0; i < r->pattern_size; i+=register_size)
         {
             for (auto j = 0; j < register_size; j++)
             {
                 if (data[i+j] != static_cast<unsigned char>((iter >> j*8) & 0xFF)) errors +=1;
             }
-            if (iter > max_register_size) iter = 1;
+            if (iter == last_possible_value) iter = 1;
             else iter *= 2;
         }
     }
@@ -311,6 +321,97 @@ void TransferTest::runOnSpecificMemory(std::vector<std::string> &memory_v)
     }
 }
 
+void TransferTest::duplexTimer(unsigned char *data, const int &block_size)
+{
+    setupFPGA();
+    std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
+    int nmb_of_transfers = r->pattern_size / block_size;
+    unsigned char *send_data = new unsigned char[block_size];
+    unsigned char *received_data = new unsigned char[block_size];
+
+    r->pc_duration_total = std::chrono::nanoseconds::zero();
+    dev->SetWireInValue(PATTERN_TO_GENERATE, cfgs.pattern_m[r->pattern]);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TRIGGER, RESET);
+    LOG(INFO) << "START iterations";
+    timer_start = std::chrono::system_clock::now();
+    dev->ActivateTriggerIn(TRIGGER, START_TIMER);
+    for (auto i=0; i<cfgs.iterations; i++)
+    {
+        for (auto j = 16; j<= r->pattern_size; j+=16)
+        {
+            dev->ActivateTriggerIn(TRIGGER, RESET);
+            send_data = data+j;
+            dev->WriteToPipeIn(PIPE_IN, block_size, send_data);
+            dev->ReadFromPipeOut(PIPE_OUT, block_size, received_data);
+            if (send_data == received_data) std::cout << "OK!" << std::endl;
+            else std::cout << "NOT OK!!" << std::endl;
+            std::cout <<"Send data: " << std::endl;
+            for (int k = 0; k < block_size; k++) {
+                if (k == block_size - 1) {
+                std::cout << (int)send_data[k] << ".\n" << std::endl;
+                break;
+                }
+            std::cout << (int)send_data[k] << ", ";
+            }
+            std::cout <<"Received data: " << std::endl;
+            for (int k = 0; k < block_size; k++) {
+                if (k == block_size - 1) {
+                std::cout << (int)received_data[k] << ".\n" << std::endl;
+                break;
+                }
+            std::cout << (int)received_data[k] << ", ";
+            }
+        }
+    }
+    dev->ActivateTriggerIn(TRIGGER, STOP_TIMER);
+    timer_stop = std::chrono::system_clock::now();
+    r->pc_duration_total = timer_stop - timer_start;
+    // dev->UpdateWireOuts();
+    // r.errors = dev->GetWireOutValue(ERROR_COUNT);
+
+    delete[] send_data;
+    delete[] received_data;
+    LOG(INFO) << "Stop iterations";
+}
+
+void TransferTest::runDuplexMode()
+{
+    // load bitfile to fpga
+    std::vector<int> block_sizes {64, 256, 1024};
+    std::vector<int> pattern_sizes {1024, 1048576};
+    r->direction = "bidir";
+    r->depth = 1024;
+    r->memory = "blockram";
+
+
+    for (const auto &pattern_size : pattern_sizes)
+    {
+        r->pattern_size;
+        for (const auto &block_size : block_sizes)
+        {
+            int nmb_of_transfers = pattern_size / block_size;
+            for (const auto &pattern : cfgs.pattern_v)
+            {
+                for (auto i = 1; i <= cfgs.statistic_iter; i++)
+                {
+                    // DLOG(INFO) << "Current statistical iteration: " << i;
+                    r->stat_iteration = i;
+                    r->pattern = pattern;
+                    unsigned char* data = new unsigned char[r->pattern_size];
+                    auto mode = cfgs.mode_m[r->mode];
+                    
+                    generatedDataToWrite(data);
+                    duplexTimer(data, block_size);
+                    r->saveResultsToFile();
+                    delete[] data;
+                }
+            }
+            // std::cout << "Pattern size: " << pattern_size << ". Block size: " << block_size << ". Nmb of transfers: " << nmb_of_transfers << std::endl;
+        }
+    }
+}
+
 void TransferTest::runOnSpecificMode()
 {
     auto mode = cfgs.mode_m[r->mode];
@@ -320,19 +421,23 @@ void TransferTest::runOnSpecificMode()
     {
         case BIT32:
             memory_v_for_specific_mode = cfgs.memory_v;
+            DLOG(INFO) << "Initialized memory vector for: " << r->mode;
+            runOnSpecificMemory(memory_v_for_specific_mode);
             break;
         
         case NONSYM:
             memory_v_for_specific_mode = {"blockram"};
             DLOG(WARNING) << "FYI: For nonsym mode, the only valid memory is blockram";
+            runOnSpecificMemory(memory_v_for_specific_mode);
             break;
 
         case DUPLEX:
+            runDuplexMode();
             break;
     }
-    DLOG(INFO) << "Initialized memory vector for: " << r->mode;
+    // DLOG(INFO) << "Initialized memory vector for: " << r->mode;
 
-    runOnSpecificMemory(memory_v_for_specific_mode);
+    // runOnSpecificMemory(memory_v_for_specific_mode);
 }
 
 void TransferTest::performTransferTest()
