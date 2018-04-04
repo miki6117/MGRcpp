@@ -120,7 +120,7 @@ class Results
             DLOG(INFO) << "Destroying Results class";
         };
 
-        unsigned int depth, errors, pattern_size, stat_iteration;
+        unsigned int block_size, depth, errors, pattern_size, stat_iteration;
         std::string mode, direction, memory, pattern;
         std::chrono::duration<double, std::micro> pc_duration_total;
 

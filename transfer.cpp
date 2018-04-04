@@ -267,6 +267,7 @@ void TransferTest::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
         for (const auto &size : cfgs.pattern_size_v)
         {
             r->pattern_size = size;
+            r->block_size = size;
             DLOG(INFO) << "Pattern size set to: " << size;
             checkIfOpen();
             for (const auto &pattern : cfgs.pattern_v)
@@ -390,6 +391,7 @@ void TransferTest::runDuplexMode()
         r->pattern_size;
         for (const auto &block_size : block_sizes)
         {
+            r->block_size = block_size;
             int nmb_of_transfers = pattern_size / block_size;
             for (const auto &pattern : cfgs.pattern_v)
             {

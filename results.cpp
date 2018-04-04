@@ -53,6 +53,7 @@ void Results::saveResultsToFile()
         result_file << memory << rs;
         result_file << depth << rs;
         result_file << pattern_size << rs;
+        result_file << block_size << rs;
         result_file << pattern << rs;
         result_file << cfgs.iterations << rs;
         result_file << stat_iteration << rs;
