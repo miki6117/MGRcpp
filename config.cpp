@@ -90,13 +90,21 @@ void Configurations::configureParams(libconfig::Config &cfg)
     vectorParser(memory_v, memory_default, params, "memory");
     vectorParser(depth_v, depth_default, params, "depth");
     vectorParser(pattern_v, pattern_default, params, "pattern");
+    vectorParser(block_size_v, block_size_default, params, "block_size");
     for (unsigned int size=16; size<=MAX_PATTERN_SIZE; size+=size)
     {
         DLOG(INFO) << "Pushing back size to pattern_size_default: " << size;
         pattern_size_default.push_back(size);
 
     }
+    for (unsigned int size=1024; size<=MAX_PATTERN_SIZE; size+=size)
+    {
+        DLOG(INFO) << "Pushing back size to pattern_size_duplex_default: " << size;
+        pattern_size_duplex_default.push_back(size);
+
+    }
     vectorParser(pattern_size_v, pattern_size_default, params, "pattern_size");
+    vectorParser(pattern_size_duplex_v, pattern_size_duplex_default, params, "pattern_size_duplex");
 
     integerParams(params);
 }

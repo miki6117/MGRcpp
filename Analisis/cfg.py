@@ -20,7 +20,7 @@ PARAMETERS_SEPARATED = False
 """Try not to modify this section on your own (except you know exactely what are you doing)!"""
 
 """Results that need casting to integers"""
-INT_VALUES = ['FifoDepth', 'PatternSize', 'StatisticalIter', 'Iterations', 'Errors']
+INT_VALUES = ['FifoDepth', 'PatternSize', 'BlockSize', 'StatisticalIter', 'Iterations', 'Errors']
 
 """Results that need casting to floats"""
 FLOAT_VALUES = ['PC time(total) [us]', 'PC time(per iteration) [us]',

@@ -324,10 +324,8 @@ void TransferTest::runOnSpecificMemory(std::vector<std::string> &memory_v)
 
 void TransferTest::duplexTimer(unsigned char *data, const int &block_size)
 {
-    setupFPGA();
     std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
-    int nmb_of_transfers = r->pattern_size / block_size;
-    unsigned char *send_data = new unsigned char[block_size];
+    unsigned char *send_data;
     unsigned char *received_data = new unsigned char[block_size];
 
     r->pc_duration_total = std::chrono::nanoseconds::zero();
@@ -335,81 +333,78 @@ void TransferTest::duplexTimer(unsigned char *data, const int &block_size)
     dev->UpdateWireIns();
     dev->ActivateTriggerIn(TRIGGER, RESET);
     LOG(INFO) << "START iterations";
-    timer_start = std::chrono::system_clock::now();
-    dev->ActivateTriggerIn(TRIGGER, START_TIMER);
+    int errors = 0;
     for (auto i=0; i<cfgs.iterations; i++)
     {
-        for (auto j = 16; j<= r->pattern_size; j+=16)
+        for (auto j = 0; j < r->pattern_size; j+=block_size)
         {
             dev->ActivateTriggerIn(TRIGGER, RESET);
-            send_data = data+j;
+            send_data = data + j;
+
+            timer_start = std::chrono::system_clock::now();
+            dev->ActivateTriggerIn(TRIGGER, START_TIMER);
+
             dev->WriteToPipeIn(PIPE_IN, block_size, send_data);
             dev->ReadFromPipeOut(PIPE_OUT, block_size, received_data);
-            if (send_data == received_data) std::cout << "OK!" << std::endl;
-            else std::cout << "NOT OK!!" << std::endl;
-            std::cout <<"Send data: " << std::endl;
-            for (int k = 0; k < block_size; k++) {
-                if (k == block_size - 1) {
-                std::cout << (int)send_data[k] << ".\n" << std::endl;
-                break;
-                }
-            std::cout << (int)send_data[k] << ", ";
+
+            dev->ActivateTriggerIn(TRIGGER, STOP_TIMER);
+            timer_stop = std::chrono::system_clock::now();
+            r->pc_duration_total += (timer_stop - timer_start);
+
+            // Error checking
+            if (std::equal(send_data, send_data + block_size, received_data))
+            {
+                DLOG(INFO) << "Duplex: send data is equal to received data";
             }
-            std::cout <<"Received data: " << std::endl;
-            for (int k = 0; k < block_size; k++) {
-                if (k == block_size - 1) {
-                std::cout << (int)received_data[k] << ".\n" << std::endl;
-                break;
-                }
-            std::cout << (int)received_data[k] << ", ";
+            else
+            {
+                DLOG(ERROR) << "Duplex: send data is NOT equal to received data";
+                errors += 1;
             }
         }
     }
-    dev->ActivateTriggerIn(TRIGGER, STOP_TIMER);
-    timer_stop = std::chrono::system_clock::now();
-    r->pc_duration_total = timer_stop - timer_start;
-    // dev->UpdateWireOuts();
-    // r.errors = dev->GetWireOutValue(ERROR_COUNT);
+    r->errors = errors;
 
-    delete[] send_data;
     delete[] received_data;
     LOG(INFO) << "Stop iterations";
 }
 
-void TransferTest::runDuplexMode()
+void TransferTest::runDuplexMode(std::vector<std::string> &memory_v)
 {
-    // load bitfile to fpga
-    std::vector<int> block_sizes {64, 256, 1024};
-    std::vector<int> pattern_sizes {1024, 1048576};
     r->direction = "bidir";
-    r->depth = 1024;
-    r->memory = "blockram";
+    r->depth = 1024; // TODO: be sure that this will work
 
 
-    for (const auto &pattern_size : pattern_sizes)
+    for (const auto &memory : memory_v)
     {
-        r->pattern_size;
-        for (const auto &block_size : block_sizes)
+        r->memory = memory;
+        DLOG(INFO) << "Duplex FIFO memory mode set to: " << memory;
+        setupFPGA();
+        for (const auto &pattern_size : cfgs.pattern_size_duplex_v)
         {
-            r->block_size = block_size;
-            int nmb_of_transfers = pattern_size / block_size;
-            for (const auto &pattern : cfgs.pattern_v)
+            r->pattern_size = pattern_size;
+            DLOG(INFO) << "Duplex pattern size set to: " << pattern_size;
+            for (const auto &block_size : cfgs.block_size_v)
             {
-                for (auto i = 1; i <= cfgs.statistic_iter; i++)
+                r->block_size = block_size;
+                DLOG(INFO) << "Duplex block size set to: " << block_size;
+                for (const auto &pattern : cfgs.pattern_v)
                 {
-                    // DLOG(INFO) << "Current statistical iteration: " << i;
-                    r->stat_iteration = i;
                     r->pattern = pattern;
-                    unsigned char* data = new unsigned char[r->pattern_size];
-                    auto mode = cfgs.mode_m[r->mode];
-                    
-                    generatedDataToWrite(data);
-                    duplexTimer(data, block_size);
-                    r->saveResultsToFile();
-                    delete[] data;
+                    DLOG(INFO) << "Duplex current pattern: " << pattern;
+                    for (auto i = 1; i <= cfgs.statistic_iter; i++)
+                    {
+                        r->stat_iteration = i;
+                        DLOG(INFO) << "Duplex current statistical iteration: " << i;
+                        unsigned char* data = new unsigned char[r->pattern_size];
+                        
+                        generatedDataToWrite(data);
+                        duplexTimer(data, block_size);
+                        r->saveResultsToFile();
+                        delete[] data;
+                    }
                 }
             }
-            // std::cout << "Pattern size: " << pattern_size << ". Block size: " << block_size << ". Nmb of transfers: " << nmb_of_transfers << std::endl;
         }
     }
 }
@@ -434,12 +429,11 @@ void TransferTest::runOnSpecificMode()
             break;
 
         case DUPLEX:
-            runDuplexMode();
+            memory_v_for_specific_mode = cfgs.memory_v;
+            DLOG(INFO) << "Initialized memory vector for: " << r->mode;
+            runDuplexMode(memory_v_for_specific_mode);
             break;
     }
-    // DLOG(INFO) << "Initialized memory vector for: " << r->mode;
-
-    // runOnSpecificMemory(memory_v_for_specific_mode);
 }
 
 void TransferTest::performTransferTest()

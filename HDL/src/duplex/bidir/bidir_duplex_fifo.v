@@ -1,4 +1,4 @@
-module bidir_duplex_fifo_blockram_1024(
+module bidir_duplex_fifo_shiftregister_2048(
 	input  wire [4:0]   okUH,
 	output wire [2:0]   okHU,
 	inout  wire [31:0]  okUHU,

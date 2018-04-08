@@ -26,7 +26,7 @@ enum Endpoints
     NUMBER_OF_COUNTS_A = 0x20,
     NUMBER_OF_COUNTS_B = 0x21,
     ERROR_COUNT = 0x22,
-    PATTERN_TO_GENERATE = 0x00, // TODO: Really? Check!
+    PATTERN_TO_GENERATE = 0x00,
     PIPE_IN = 0x80,
     PIPE_OUT = 0xa0,
     TRIGGER = 0x40
@@ -63,6 +63,8 @@ class Configurations
         std::vector<std::string> memory_v;
         std::vector<unsigned int> depth_v;
         std::vector<unsigned int> pattern_size_v;
+        std::vector<unsigned int> pattern_size_duplex_v;
+        std::vector<unsigned int> block_size_v;
         std::vector<std::string> pattern_v;
         unsigned int statistic_iter;
         unsigned int iterations;
@@ -93,6 +95,8 @@ class Configurations
         std::vector<std::string> memory_default {"blockram", "distributedram", "shiftregister"};
         std::vector<unsigned int> depth_default {16, 64, 256, 1024};
         std::vector<unsigned int> pattern_size_default;
+        std::vector<unsigned int> pattern_size_duplex_default;
+        std::vector<unsigned int> block_size_default {16, 64, 256, 1024};
         std::vector<std::string> pattern_default {"counter_8bit", "counter_32bit", "walking_1"};
 
         template <class T>
@@ -160,7 +164,7 @@ class TransferTest
         Results *r;
 
         void duplexTimer(unsigned char *data, const int &block_size);
-        void runDuplexMode();
+        void runDuplexMode(std::vector<std::string> &memory_v);
         void writeTimer(unsigned char *data);
         void determineRegisterParameters(unsigned int mode, unsigned int &register_size, uint64_t &max_register_size);
         void generatedDataToWrite(unsigned char* data);
@@ -174,5 +178,20 @@ class TransferTest
         void runOnSpecificMemory(std::vector<std::string> &memory_v);
         void runOnSpecificMode();
 };
+
+// class ITimer
+// {
+//     public:
+//         virtual void performTimer() = 0;
+    
+//     private:
+//         virtual void timer() = 0;
+// };
+
+// class ReadTimer
+// {
+//     public:
+        
+// };
 
 #endif // FIFO_PERFORMANCE_H__
