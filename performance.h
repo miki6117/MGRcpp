@@ -180,39 +180,44 @@ class TransferTest
         void runOnSpecificMode();
 };
 
-// class ITimer
-// {
-//     public:
-//         ITimer(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
-//         dev{dev}, r{r}, cfgs{cfgs}
-//         {
-//             DLOG(INFO) << "Timer interface initialized";
-//         }
-//         virtual ~ITimer() {}
-//         void performTimer(unsigned char *data);
+class ITimer
+{
+    public:
+        ITimer(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
+        dev{dev}, r{r}, cfgs{cfgs}
+        {
+            DLOG(INFO) << "Timer interface initialized";
+        }
+        virtual ~ITimer() {}
+        void performTimer(unsigned char *data);
     
-//     private:
-//         okCFrontPanel *dev;
-//         Configurations &cfgs;
-//         Results *r;
-//         std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
+    private:
+        okCFrontPanel *dev;
+        Configurations &cfgs;
+        Results *r;
+        std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
 
-//         virtual void timer(unsigned char *data) = 0;
-// };
+        virtual void timer(unsigned char *data) = 0;
+};
 
-// void ITimer::performTimer(unsigned char *data)
-// {
-//     r->pc_duration_total = std::chrono::nanoseconds::zero();
-//     dev->SetWireInValue(PATTERN_TO_GENERATE, cfgs.pattern_m[r->pattern]);
-//     dev->UpdateWireIns();
-//     dev->ActivateTriggerIn(TRIGGER, RESET);
-//     void timer(unsigned char *data);
-// }
+void ITimer::performTimer(unsigned char *data)
+{
+    r->pc_duration_total = std::chrono::nanoseconds::zero();
+    dev->SetWireInValue(PATTERN_TO_GENERATE, cfgs.pattern_m[r->pattern]);
+    dev->UpdateWireIns();
+    dev->ActivateTriggerIn(TRIGGER, RESET);
+    void timer(unsigned char *data);
+}
 
-// class Read : public ITimer
-// {
-//     public:
+class Read : public ITimer
+{
+    public:
+        Read(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
+        ITimer(dev, r, cfgs) 
+        {
+            DLOG(INFO) << "Read class initialized";
+        }
 
-// };
+};
 
 #endif // FIFO_PERFORMANCE_H__
