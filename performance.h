@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <ctime>
 #include <fstream>
+#include <map>
 #include <regex>
 #include <sstream>
 #include <string>
@@ -182,16 +183,36 @@ class TransferTest
 // class ITimer
 // {
 //     public:
-//         virtual void performTimer() = 0;
+//         ITimer(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
+//         dev{dev}, r{r}, cfgs{cfgs}
+//         {
+//             DLOG(INFO) << "Timer interface initialized";
+//         }
+//         virtual ~ITimer() {}
+//         void performTimer(unsigned char *data);
     
 //     private:
-//         virtual void timer() = 0;
+//         okCFrontPanel *dev;
+//         Configurations &cfgs;
+//         Results *r;
+//         std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
+
+//         virtual void timer(unsigned char *data) = 0;
 // };
 
-// class ReadTimer
+// void ITimer::performTimer(unsigned char *data)
+// {
+//     r->pc_duration_total = std::chrono::nanoseconds::zero();
+//     dev->SetWireInValue(PATTERN_TO_GENERATE, cfgs.pattern_m[r->pattern]);
+//     dev->UpdateWireIns();
+//     dev->ActivateTriggerIn(TRIGGER, RESET);
+//     void timer(unsigned char *data);
+// }
+
+// class Read : public ITimer
 // {
 //     public:
-        
+
 // };
 
 #endif // FIFO_PERFORMANCE_H__

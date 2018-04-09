@@ -2,6 +2,8 @@
 #include <limits>
 #include <iostream> // TODO: delete
 
+#undef max
+
 void TransferTest::writeTimer(unsigned char *data)
 {
     // std::chrono::duration<double, std::micro> pc_duration_total;
