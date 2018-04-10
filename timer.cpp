@@ -3,7 +3,7 @@
 // INTERFACE
 void ITimer::performActionOnGeneratedData(const unsigned char &data_char, unsigned char *data, int index)
 {
-	if (checkForErrors)
+	if (check_for_errors)
 	{
 		if (data[index] != data_char) r->errors += 1;
 	}
@@ -54,7 +54,6 @@ void ITimer::generateData(unsigned char *data)
 		for (auto i = 0; i < r->pattern_size; i++)
 		{
 			data_char = static_cast<unsigned char>(iter);
-			// data[i] = static_cast<unsigned char>(iter);
 			performActionOnGeneratedData(data_char, data, i);
 			if (iter > max_register_size) iter = 0;
 			else ++iter;
@@ -67,7 +66,6 @@ void ITimer::generateData(unsigned char *data)
 			for (auto j = 0; j < register_size; j++)
 			{
 				data_char = static_cast<unsigned char>((iter >> j*8) & 0xFF);
-				// data[i+j] = static_cast<unsigned char>((iter >> j*8) & 0xFF);
 				performActionOnGeneratedData(data_char, data, i+j);
 			}
 			if (iter > max_register_size) iter = 0;
@@ -83,7 +81,6 @@ void ITimer::generateData(unsigned char *data)
 			for (auto j=0; j < register_size; j++)
 			{
 				data_char = static_cast<unsigned char>((iter >> j*8) & 0xFF);
-				// data[i+j] = static_cast<unsigned char>((iter >> j*8) & 0xFF);
 				performActionOnGeneratedData(data_char, data, i+j);
 			}
 			

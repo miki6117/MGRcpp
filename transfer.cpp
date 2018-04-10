@@ -20,21 +20,21 @@ void TransferController::runTestBasedOnParameters()
 		if (dir == READ)
 		{
 			DLOG(INFO) << "Setting read timer";
-			Read readTimer(dev, r, cfgs);
-			readTimer.performTimer(data); // TODO: maybe data can be in ITimer class declared??
+			Read read_timer(dev, r, cfgs);
+			read_timer.performTimer(data); // TODO: maybe data can be in ITimer class declared??
 		}
 		else if (dir == WRITE)
 		{
 			DLOG(INFO) << "Setting write timer";
-			Write writeTimer(dev, r, cfgs);
-			writeTimer.performTimer(data);
+			Write write_timer(dev, r, cfgs);
+			write_timer.performTimer(data);
 		}
 	}
 	else
 	{
 		DLOG(INFO) << "Setting bidir timer";
-		Duplex duplexTimer(dev, r, cfgs);
-		duplexTimer.performTimer(data);
+		Duplex duplex_timer(dev, r, cfgs);
+		duplex_timer.performTimer(data);
 	}
 	r->saveResultsToFile();
 	delete[] data;
@@ -130,20 +130,28 @@ void TransferController::specifyDepth(std::vector<unsigned int> &depth_v)
 	DLOG(INFO) << "Specifying depth based on " << transfer_mode << " mode and " 
 			   << direction << " direction";
 
-	if (transfer_mode == NONSYM && direction == WRITE)
+	if (transfer_mode != DUPLEX)
 	{
-		depth_v = {32, 64, 256, 1024}; //TODO: If 16 in depth_v then 32!!
-		DLOG(INFO) << "Depth values specified for NONSYM mode and WRITE direction";
-	}
-	else if (transfer_mode == DUPLEX)
-	{
-		depth_v = {1024}; //TODO: Fill in (2048????)
-		DLOG(INFO) << "Depth values specified for DUPLEX mode";
+		depth_v = cfgs.depth_v;
+		if (transfer_mode == NONSYM && direction == WRITE)
+		{
+			unsigned int depth_val_to_change = 16;
+			for (auto &depth : depth_v)
+			{
+				if (depth == depth_val_to_change)
+				{
+					depth = 32;
+					DLOG(WARNING) << "Changed depth 16 to 32 for NONSYM WRITE mode";
+				}
+			}
+			DLOG(INFO) << "Depth values specified for NONSYM mode and WRITE direction";
+		}
+		DLOG(INFO) << "Depth values copied from config file";
 	}
 	else
 	{
-		depth_v = cfgs.depth_v;
-		DLOG(INFO) << "Depth values copied from config file";
+		depth_v = {1024}; // TODO: Fill in (2048????)
+		DLOG(INFO) << "Depth values specified for DUPLEX mode";
 	}
 }
 

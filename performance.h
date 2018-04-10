@@ -94,7 +94,7 @@ class Configurations
 		std::vector<std::string> mode_default {"32bit", "nonsym", "duplex"};
 		std::vector<std::string> direction_default {"read", "write"};
 		std::vector<std::string> memory_default {"blockram", "distributedram", "shiftregister"};
-		std::vector<unsigned int> depth_default {16, 64, 256, 1024};
+		std::vector<unsigned int> depth_default {16, 64, 256, 1024, 2048};
 		std::vector<unsigned int> pattern_size_default;
 		std::vector<unsigned int> pattern_size_duplex_default;
 		std::vector<unsigned int> block_size_default {16, 64, 256, 1024};
@@ -188,7 +188,7 @@ class ITimer
 		virtual ~ITimer() {}
 		void performTimer(unsigned char *data);
 	
-		bool checkForErrors;
+		bool check_for_errors;
 		okCFrontPanel *dev;
 		Results *r;
 		Configurations &cfgs;
@@ -207,7 +207,7 @@ class Read : public ITimer
 		Read(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
 		ITimer(dev, r, cfgs)
 		{
-			checkForErrors = true;
+			check_for_errors = true;
 			DLOG(INFO) << "Read class initialized";
 		}
 
@@ -222,7 +222,7 @@ class Write : public ITimer
 		Write(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
 		ITimer(dev, r, cfgs)
 		{
-			checkForErrors = false;
+			check_for_errors = false;
 			DLOG(INFO) << "Write class initialized";
 		}
 
@@ -237,7 +237,7 @@ class Duplex : public ITimer
 		Duplex(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
 		ITimer(dev, r, cfgs)
 		{
-			checkForErrors = false;
+			check_for_errors = false;
 			DLOG(INFO) << "Duplex class initialized";
 		}
 
