@@ -92,7 +92,7 @@ void ITimer::generateData(unsigned char *data)
 	DLOG(INFO) << "Data to write generated";
 }
 
-void ITimer::performTimer(unsigned char *data)
+void ITimer::prepareForTransfer(unsigned char *data)
 {
 	r->pc_duration_total = std::chrono::nanoseconds::zero();
 	r->errors = 0;
@@ -103,8 +103,9 @@ void ITimer::performTimer(unsigned char *data)
 }
 
 // READ
-void Read::timer(unsigned char *data)
+void Read::performTimer(unsigned char *data)
 {
+	prepareForTransfer(data);
 	for (unsigned int i=0; i<cfgs.iterations; i++)
 	{
 		DLOG(INFO) << "Current iteration: " << i;
@@ -123,8 +124,9 @@ void Read::timer(unsigned char *data)
 }
 
 // WRITE
-void Write::timer(unsigned char *data)
+void Write::performTimer(unsigned char *data)
 {
+	prepareForTransfer(data);
 	generateData(data);
 	timer_start = std::chrono::system_clock::now();
 	dev->ActivateTriggerIn(TRIGGER, START_TIMER);
@@ -139,8 +141,9 @@ void Write::timer(unsigned char *data)
 }
 
 // DUPLEX
-void Duplex::timer(unsigned char *data)
+void Duplex::performTimer(unsigned char *data)
 {
+	prepareForTransfer(data);
 	unsigned char *send_data;
 	unsigned char *received_data = new unsigned char[r->block_size];
 	int errors = 0;

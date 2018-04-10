@@ -186,7 +186,7 @@ class ITimer
 			DLOG(INFO) << "Timer interface initialized";
 		}
 		virtual ~ITimer() {}
-		void performTimer(unsigned char *data);
+		void prepareForTransfer(unsigned char *data);
 	
 		bool check_for_errors;
 		okCFrontPanel *dev;
@@ -194,7 +194,7 @@ class ITimer
 		Configurations &cfgs;
 		std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
 
-		virtual void timer(unsigned char *data) = 0;
+		virtual void performTimer(unsigned char *data) = 0;
 		void generateData(unsigned char *data);
 	private:
 		void determineRegisterParameters(unsigned int mode, unsigned int &register_size, uint64_t &max_register_size);
@@ -211,9 +211,7 @@ class Read : public ITimer
 			DLOG(INFO) << "Read class initialized";
 		}
 
-	private:
-		virtual void timer(unsigned char *data);
-
+		virtual void performTimer(unsigned char *data);
 };
 
 class Write : public ITimer
@@ -226,9 +224,7 @@ class Write : public ITimer
 			DLOG(INFO) << "Write class initialized";
 		}
 
-	private:
-		virtual void timer(unsigned char *data);
-
+		virtual void performTimer(unsigned char *data);
 };
 
 class Duplex : public ITimer
@@ -241,9 +237,7 @@ class Duplex : public ITimer
 			DLOG(INFO) << "Duplex class initialized";
 		}
 
-	private:
-		virtual void timer(unsigned char *data);
-
+		virtual void performTimer(unsigned char *data);
 };
 
 #endif // FIFO_PERFORMANCE_H__
