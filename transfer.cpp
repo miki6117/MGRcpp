@@ -1,6 +1,5 @@
 #include "performance.h"
 #include <limits>
-#include <iostream> // TODO: delete
 
 // #undef max // Uncomment for Windows
 
@@ -101,7 +100,7 @@ void TransferController::setupFPGA()
     if (err_code == okCFrontPanel::NoError) 
     {
         LOG(INFO) << "Configure status for file " << bitfile_name << " : all ok";
-	} 
+    }
     else 
     {
         LOG(FATAL) << "FPGA configuration failed [" << dev->GetErrorString(err_code)

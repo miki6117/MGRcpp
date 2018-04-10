@@ -33,7 +33,7 @@ void Configurations::vectorParser (std::vector<T> &parse_v, std::vector<T> &defa
         T set = setting[option][i];
         if (std::find(default_v.begin(), default_v.end(), set) != default_v.end())
         {
-            // DLOG(INFO) << "Parsing " << setting[option][i] << " to parse_v";
+            DLOG(INFO) << "Parsing " << set << " to parse_v";
             parse_v.push_back(setting[option][i]);
         }
         else
@@ -90,7 +90,7 @@ void Configurations::configureParams(libconfig::Config &cfg)
     vectorParser(memory_v, memory_default, params, "memory");
     vectorParser(depth_v, depth_default, params, "depth");
     vectorParser(pattern_v, pattern_default, params, "pattern");
-    vectorParser(block_size_v, block_size_default, params, "block_size");
+    vectorParser(block_size_v, block_size_default, params, "block_size_duplex");
     for (unsigned int size=16; size<=MAX_PATTERN_SIZE; size+=size)
     {
         DLOG(INFO) << "Pushing back size to pattern_size_default: " << size;

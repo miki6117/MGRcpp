@@ -87,7 +87,7 @@ class Configurations
         
         // Default values for paramaters TODO: change to const
         std::vector<std::string> headers_default {"Time", "Mode", "Direction",
-                "FifoMemoryType", "FifoDepth", "PatternSize", "DataPattern", 
+                "FifoMemoryType", "FifoDepth", "PatternSize", "BlockSize", "DataPattern", 
                 "Iterations", "StatisticalIter", "CountsInFPGA", "FPGA time(total) [us]", 
                 "FPGA time(per iteration) [us]", "PC time(total) [us]", 
                 "PC time(per iteration) [us]", "SpeedPC [B/s]", "SpeedFPGA [B/s]", "Errors"};
