@@ -24,72 +24,72 @@ INT_VALUES = ['FifoDepth', 'PatternSize', 'BlockSize', 'StatisticalIter', 'Itera
 
 """Results that need casting to floats"""
 FLOAT_VALUES = ['PC time(total) [us]', 'PC time(per iteration) [us]',
-                'FPGA time(total) [us]', 'CountsInFPGA',
-                'FPGA time(per iteration) [us]', 'SpeedPC [B/s]',
-                'SpeedFPGA [B/s]']
+				'FPGA time(total) [us]', 'CountsInFPGA',
+				'FPGA time(per iteration) [us]', 'SpeedPC [B/s]',
+				'SpeedFPGA [B/s]']
 
 """Names of heads after refactoring"""
 REFACTORED_HEADS = ['Mode', 'Direction', 'FifoMemoryType', 'FifoDepth', 'PatternSize', 'DataPattern', 'SpeedPC', 'u(PC)', 'SpeedFPGA', 'u(FPGA)', 'Average', 'u(av)']
 
 """Metadata for figure objects"""
 FIGURE_METADATA = {
-    'xlabel' : 'Pattern size [B]',
-    'xscale' : 'log',
-    'ylabel_PC' : 'Speed PC [MB/s]',
-    'ylabel_FPGA' : 'Speed FPGA [MB/s]',
-    'ylabel_AV' : 'Average speed [MB/s]',
-    'yticks' : [i for i in range(0, 401, 50)],
-    'grid' : True,
-    'error' : 'Target ylabel should be defined as PC, FPGA or AV'
+	'xlabel' : 'Pattern size [B]',
+	'xscale' : 'log',
+	'ylabel_PC' : 'Speed PC [MB/s]',
+	'ylabel_FPGA' : 'Speed FPGA [MB/s]',
+	'ylabel_AV' : 'Average speed [MB/s]',
+	'yticks' : [i for i in range(0, 401, 50)],
+	'grid' : True,
+	'error' : 'Target ylabel should be defined as PC, FPGA or AV'
 }
 
 """Properties that can be combined with each other"""
 BASIC_PROPERTIES = {
-    'Mode' : ['nonsym', '32bit'],
-    'Direction' : ['read', 'write'],
-    'FifoMemoryType' : ['blockram', 'distributedram', 'shiftregister'],
-    'FifoDepth': [16, 32, 64, 256, 1024],
-    'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1']
+	'Mode' : ['nonsym', '32bit'],
+	'Direction' : ['read', 'write'],
+	'FifoMemoryType' : ['blockram', 'distributedram', 'shiftregister'],
+	'FifoDepth': [16, 32, 64, 256, 1024],
+	'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1']
 }
 
 """Combined parameters"""
 PLOTTING_OPTIONS = {
-    'memtype_depth_pattern' : {
-        'title' : 'Fifo memory type: {}. Depth = {}',
-        'savefig' : '{}_{}_{}_patterns.png',
-        'first_param' : 'FifoMemoryType',
-        'second_param' : 'FifoDepth',
-        'third_param' : 'DataPattern',
-        'legend' : {
-            'counter_8bit' : 'ro',
-            'counter_32bit' : 'g*',
-            'walking_1' : 'b+'
-        }
-    },
-    'depth_pattern_memtype' : {
-        'title' : 'Fifo depth: {}. Pattern type = {}',
-        'savefig' : '{}_{}_{}_memory_types.png',
-        'first_param' : 'FifoDepth',
-        'second_param' : 'DataPattern',
-        'third_param' : 'FifoMemoryType',
-        'legend' : {
-            'blockram' : 'ro',
-            'distributedram' : 'g*',
-            'shiftregister' : 'b+'
-        }
-    },
-    'pattern_memtype_depth' : {
-        'title' : 'Pattern type: {}. Fifo memory type: {}',
-        'savefig' : '{}_{}_{}_depths.png',
-        'first_param' : 'DataPattern',
-        'second_param' : 'FifoMemoryType',
-        'third_param' : 'FifoDepth',
-        'legend' : {
-            16 : 'ro',
-            32 : 'y^',
-            64 : 'g*',
-            256 : 'b+',
-            1024 : 'mv'
-        }
-    }
+	'memtype_depth_pattern' : {
+		'title' : 'Fifo memory type: {}. Depth = {}',
+		'savefig' : '{}_{}_{}_patterns.png',
+		'first_param' : 'FifoMemoryType',
+		'second_param' : 'FifoDepth',
+		'third_param' : 'DataPattern',
+		'legend' : {
+			'counter_8bit' : 'ro',
+			'counter_32bit' : 'g*',
+			'walking_1' : 'b+'
+		}
+	},
+	'depth_pattern_memtype' : {
+		'title' : 'Fifo depth: {}. Pattern type = {}',
+		'savefig' : '{}_{}_{}_memory_types.png',
+		'first_param' : 'FifoDepth',
+		'second_param' : 'DataPattern',
+		'third_param' : 'FifoMemoryType',
+		'legend' : {
+			'blockram' : 'ro',
+			'distributedram' : 'g*',
+			'shiftregister' : 'b+'
+		}
+	},
+	'pattern_memtype_depth' : {
+		'title' : 'Pattern type: {}. Fifo memory type: {}',
+		'savefig' : '{}_{}_{}_depths.png',
+		'first_param' : 'DataPattern',
+		'second_param' : 'FifoMemoryType',
+		'third_param' : 'FifoDepth',
+		'legend' : {
+			16 : 'ro',
+			32 : 'y^',
+			64 : 'g*',
+			256 : 'b+',
+			1024 : 'mv'
+		}
+	}
 }
