@@ -1,5 +1,7 @@
 build/
 debug/
+libconfig/
+glog/
 .vscode/
 HDL/bitfiles/
 old_files/
