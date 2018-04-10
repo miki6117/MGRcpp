@@ -4,7 +4,7 @@
 
 // #undef max // Uncomment for Windows
 
-void TransferTest::runTestBasedOnParameters()
+void TransferController::runTestBasedOnParameters()
 {
     DLOG(INFO) << "Current mode: " << r->mode;
     DLOG(INFO) << "Current direction transfer: " << r->direction;
@@ -41,7 +41,7 @@ void TransferTest::runTestBasedOnParameters()
     delete[] data;
 }
 
-void TransferTest::checkIfOpen()
+void TransferController::checkIfOpen()
 {
     DLOG(INFO) << "Checking if device is open...";
     if (dev->IsOpen())
@@ -54,7 +54,7 @@ void TransferTest::checkIfOpen()
     }
 }
 
-void TransferTest::runOnSpecificPattern()
+void TransferController::runOnSpecificPattern()
 {
     checkIfOpen();
     for (const auto &pattern : cfgs.pattern_v)
@@ -70,7 +70,7 @@ void TransferTest::runOnSpecificPattern()
     }
 }
 
-void TransferTest::runOnSpecificPatternSize()
+void TransferController::runOnSpecificPatternSize()
 {
     if (transfer_mode == DUPLEX)
     {
@@ -89,7 +89,7 @@ void TransferTest::runOnSpecificPatternSize()
     }
 }
 
-void TransferTest::setupFPGA()
+void TransferController::setupFPGA()
 {
     std::string bitfiles = cfgs.bitfiles_path + r->mode + "/";
     DLOG(INFO) << "Path to bitfiles for current transfer mode: " << bitfiles;
@@ -109,7 +109,7 @@ void TransferTest::setupFPGA()
     }
 }
 
-void TransferTest::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
+void TransferController::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
 {
     for (const auto &depth : depth_v)
     {
@@ -124,7 +124,7 @@ void TransferTest::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
     }
 }
 
-void TransferTest::specifyDepth(std::vector<unsigned int> &depth_v)
+void TransferController::specifyDepth(std::vector<unsigned int> &depth_v)
 {
     auto direction = cfgs.direction_m[r->direction];
 
@@ -148,7 +148,7 @@ void TransferTest::specifyDepth(std::vector<unsigned int> &depth_v)
     }
 }
 
-void TransferTest::specifyDirection(std::vector<std::string> &direction_v)
+void TransferController::specifyDirection(std::vector<std::string> &direction_v)
 {
     if (transfer_mode == DUPLEX)
     {
@@ -161,7 +161,7 @@ void TransferTest::specifyDirection(std::vector<std::string> &direction_v)
     DLOG(INFO) << "Specified direction for " << r->mode;
 }
 
-void TransferTest::runOnSpecificMemory(std::vector<std::string> &memory_v)
+void TransferController::runOnSpecificMemory(std::vector<std::string> &memory_v)
 {
     std::vector<std::string> direction_v;
     specifyDirection(direction_v);
@@ -181,7 +181,7 @@ void TransferTest::runOnSpecificMemory(std::vector<std::string> &memory_v)
     }
 }
 
-void TransferTest::runOnSpecificMode()
+void TransferController::runOnSpecificMode()
 {
     std::vector<std::string> memory_v_for_specific_mode;
 
@@ -198,7 +198,7 @@ void TransferTest::runOnSpecificMode()
     runOnSpecificMemory(memory_v_for_specific_mode);
 }
 
-void TransferTest::performTransferTest()
+void TransferController::performTransferController()
 {
     r = new Results(dev, cfgs);
     DLOG(INFO) << "Memory allocated for Results class";

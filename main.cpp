@@ -30,6 +30,6 @@ int main(int argc, char *argv[]) {
 	Configurations configs(default_cfgpath);
 	configs.writeHeadersToResultFile();
 
-  TransferTest tt(dev, configs);
-  tt.performTransferTest();
+  TransferController tc(dev, configs);
+  tc.performTransferController();
 }

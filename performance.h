@@ -145,19 +145,19 @@ class Results
         void countFPGATime();
 };
 
-class TransferTest
+class TransferController
 {
     public:
-        TransferTest(okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
+        TransferController(okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
         {
-            DLOG(INFO) << "TransferTest class initialized";
+            DLOG(INFO) << "TransferController class initialized";
         }
-        ~TransferTest()
+        ~TransferController()
         {
-            DLOG(INFO) << "Destroying TransferTest class";
+            DLOG(INFO) << "Destroying TransferController class";
         }
 
-        void performTransferTest();
+        void performTransferController();
     
     private:
         okCFrontPanel *dev;
