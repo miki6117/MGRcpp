@@ -32,4 +32,6 @@ int main(int argc, char *argv[]) {
 
 	TransferController tc(dev, configs);
 	tc.performTransferController();
+
+	delete dev;
 }
