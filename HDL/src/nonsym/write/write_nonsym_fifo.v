@@ -1,4 +1,4 @@
-module write_64bit_fifo_blockram_1024(
+module write_64bit_fifo_blockram_2048(
 	input  wire [4:0]   okUH,
 	output wire [2:0]   okHU,
 	inout  wire [31:0]  okUHU,
@@ -7,7 +7,6 @@ module write_64bit_fifo_blockram_1024(
 	output wire [7:0]   led
     );
 
-// Target interface bus:
 wire         okClk;
 wire [112:0] okHE;
 wire [64:0]  okEH;
@@ -18,11 +17,8 @@ wire [63:0] fifo_dataout;
 wire [63:0] data_to_check;
 wire [31:0] error_count;
 wire [31:0] fifo_datain;
-// wire [31:0] generated_data;
-wire [63:0] generated_data;
 wire [31:0] pattern_to_generate;
 wire [31:0] pipe_in_data;
-wire [31:0] pipe_out_data;
 wire [31:0] trigger;
 
 assign reset       = trigger[0];
@@ -65,7 +61,7 @@ always @(posedge okClk) begin
 	end
 end
 
-FIFO_64bit fifoForWriteTest (
+FIFO_nonsym fifoForWriteTest (
   .rst(reset), // input rst
   .wr_clk(okClk), // input wr_clk
   .rd_clk(okClk), // input rd_clk
@@ -74,31 +70,8 @@ FIFO_64bit fifoForWriteTest (
   .rd_en(fifo_read_enable), // input rd_en
   .dout(fifo_dataout), // output [63 : 0] dout
   .valid(valid),
-  .wr_ack(wr_ack),
-  .full(full), // output full
-  .almost_full(almost_full), // output almost_full
   .empty(fifo_empty) // output empty
 );
-
-// FIFO_read your_instance_name (
-//   .rst(reset), // input rst
-//   .wr_clk(okClk), // input wr_clk
-//   .rd_clk(okClk), // input rd_clk
-//   .din({generated_data[31:0], generated_data[63:32]}), // input [63 : 0] din
-//   .wr_en(valid), // input wr_en
-//   .rd_en(pipe_out_read), // input rd_en
-//   .dout(pipe_out_data) // output [31 : 0] dout
-// );
-
-// FIFO_read your_instance_name (
-//   .rst(reset), // input rst
-//   .wr_clk(okClk), // input wr_clk
-//   .rd_clk(okClk), // input rd_clk
-//   .din({fifo_dataout[31:0],fifo_dataout[63:32]}),// input [63 : 0] din
-//   .wr_en(valid), // input wr_en
-//   .rd_en(pipe_out_read), // input rd_en
-//   .dout(pipe_out_data) // output [31 : 0] dout
-// );
 
 checkData checkDataFromPipeIn (
 	.data_to_check(data_to_check),
@@ -108,8 +81,6 @@ checkData checkDataFromPipeIn (
 	.reset_pattern(reset_pattern),
 	.check_for_errors(valid),
 	.enable_pattern(fifo_read_enable),
-	// .enable_pattern(valid),
-	// .data_to_check_out(generated_data),
 	.error_count(error_count)
 );
 
@@ -134,5 +105,4 @@ okWireOut    ep21 (.okHE(okHE), .okEH(okEHx[ 1*65 +: 65 ]), .ep_addr(8'h21), .ep
 okWireOut    ep22 (.okHE(okHE), .okEH(okEHx[ 2*65 +: 65 ]), .ep_addr(8'h22), .ep_datain(error_count));
 okPipeIn     ep80 (.okHE(okHE), .okEH(okEHx[ 3*65 +: 65 ]), .ep_addr(8'h80), .ep_write(pipe_in_write), .ep_dataout(pipe_in_data));
 
-// okPipeOut     epa0 (.okHE(okHE), .okEH(okEHx[ 4*65 +: 65 ]), .ep_addr(8'ha0), .ep_read(pipe_out_read), .ep_datain(pipe_out_data));
 endmodule

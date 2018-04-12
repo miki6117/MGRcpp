@@ -1,4 +1,4 @@
-module write_32bit_fifo_shiftregister_1024(
+module write_32bit_fifo_shiftregister_2048(
 	input  wire [4:0]   okUH,
 	output wire [2:0]   okHU,
 	inout  wire [31:0]  okUHU,
@@ -78,7 +78,6 @@ checkData checkDataFromPipeIn (
 	.reset_pattern(reset_pattern),
 	.check_for_errors(valid),
 	.enable_pattern(fifo_read_enable),
-	// .data_to_check_out(generated_data),
 	.error_count(error_count)
 );
 
@@ -102,17 +101,5 @@ okWireOut    ep20 (.okHE(okHE), .okEH(okEHx[ 0*65 +: 65 ]), .ep_addr(8'h20), .ep
 okWireOut    ep21 (.okHE(okHE), .okEH(okEHx[ 1*65 +: 65 ]), .ep_addr(8'h21), .ep_datain(clk_counts[63:32]));
 okWireOut    ep22 (.okHE(okHE), .okEH(okEHx[ 2*65 +: 65 ]), .ep_addr(8'h22), .ep_datain(error_count));
 okPipeIn     ep80 (.okHE(okHE), .okEH(okEHx[ 3*65 +: 65 ]), .ep_addr(8'h80), .ep_write(pipe_in_write), .ep_dataout(pipe_in_data));
-
-// wire [31:0] generated_data;
-// FIFO_read your_instance_name (
-//   .clk(okClk), // input clk
-//   .rst(), // input rst
-//   .din(generated_data), // input [31 : 0] din
-//   .wr_en(valid), // input wr_en
-//   .rd_en(pipe_out_read), // input rd_en
-//   .dout(pipe_out_data) // output [31 : 0] dout
-// );
-// wire [31:0] pipe_out_data;
-// okPipeOut    epa0 (.okHE(okHE), .okEH(okEHx[ 4*65 +: 65 ]), .ep_addr(8'ha0), .ep_read(pipe_out_read), .ep_datain(pipe_out_data));
 
 endmodule

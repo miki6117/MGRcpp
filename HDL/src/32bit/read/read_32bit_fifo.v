@@ -1,4 +1,4 @@
-module read_32bit_fifo_shiftregister_1024(
+module read_32bit_fifo_shiftregister_2048(
 	input  wire [4:0]   okUH,
 	output wire [2:0]   okHU,
 	inout  wire [31:0]  okUHU,

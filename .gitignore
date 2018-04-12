@@ -19,9 +19,13 @@ HDL/src/32bit/write/*
 !HDL/src/32bit/write/dataGenerator.v
 !HDL/src/32bit/write/checkData.v
 HDL/src/nonsym/read/*
+HDL/src/nonsym/write/*
 HDL/src/nonsym/*.bit
 !HDL/src/nonsym/read/read_nonsym_fifo.v
 !HDL/src/nonsym/read/dataGenerator.v
+!HDL/src/nonsym/write/write_nonsym_fifo.v
+!HDL/src/nonsym/write/dataGenerator.v
+!HDL/src/nonsym/write/checkData.v
 HDL/src/duplex/bidir/*
 HDL/src/duplex/*.bit
 !HDL/src/duplex/bidir/bidir_duplex_fifo.v
