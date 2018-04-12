@@ -1,0 +1,67 @@
+1. DONE Check if regex works properly in config.cpp
+2. DONE Debug errors in nonsym mode
+3. DONE In Results_USB3 change hesders so thet they can fit
+4. DONE Fix wrong endpoint number in bitfiles
+
+1. Set timer in duplex mode
+2. Create interface for timer
+3. Write UML
+4. Check if works on windows
+
+Pattern size must be dividable by all block sizes and <= 1GB
+Block size < 1024
+Block size need be multiple of 16
+
+ENSURE THAT ALL BITFILES ARE ACCESSIBLE!!!!
+
+### In run_analisis.py:
+-> In 147: if Mode == duplex then direction = ['bidir'] else direction = self.basic_properties['Direction']
+
+### In cfg.py
+-> Add "BlockSize" to INT_VALUES
+-> Add "BlockSize" to REFACTORED_HEADS
+-> Refactor : in dicts (pep8!)
+-> Add duplex to PLOTTING_OPTIONS
+'duplex_memtype_blocksize_pattern': {
+    'title': 'Fifo memory type: {}. Block size = {}',
+    'savefig': '{}_{}_{}_patterns.png',
+    'first_param': 'FifoMemoryType',
+    'second_param': 'BlockSize',
+    'third_param': 'DataPattern',
+    'legend': {
+        'counter_8bit': 'ro',
+        'counter_32bit': 'g*',
+        'walking_1': 'b+'
+    }
+},
+'duplex_blocksize_pattern_memtype': {
+    'title' : 'Block size: {}. Pattern type = {}',
+    'savefig' : '{}_{}_{}_memory_types.png',
+    'first_param' : 'BlockSize',
+    'second_param' : 'DataPattern',
+    'third_param' : 'FifoMemoryType',
+    'legend' : {
+        'blockram' : 'ro',
+        'distributedram' : 'g*',
+        'shiftregister' : 'b+'
+    }
+},
+'duplex_pattern_memtype_blocksize': {
+    'title' : 'Pattern type: {}. Fifo memory type: {}',
+    'savefig' : '{}_{}_{}_blocksizes.png',
+    'first_param' : 'DataPattern',
+    'second_param' : 'FifoMemoryType',
+    'third_param' : 'BlockSize',
+    'legend' : {
+        16 : 'ro',
+        64 : 'g*',
+        256 : 'b+',
+        1024 : 'mv'
+    }
+}
+
+
+HOT TODOs:
+-> DEBUG walking_1!!
+-> DEBUG duplex
+-> 2048 depth do

@@ -8,7 +8,7 @@ old_files/
 Analisis/
 !Analisis/cfg.py
 !Analisis/run_analisis.py
-TODOs
+# TODOs
 HDL/.DS_Store
 HDL/src/32bit/read/*
 HDL/src/32bit/*.bit
