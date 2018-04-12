@@ -144,6 +144,7 @@ void Write::performTimer(unsigned char *data)
 void Duplex::performTimer(unsigned char *data)
 {
 	prepareForTransfer(data);
+	generateData(data);
 	unsigned char *send_data;
 	unsigned char *received_data = new unsigned char[r->block_size];
 	int errors = 0;
@@ -151,7 +152,6 @@ void Duplex::performTimer(unsigned char *data)
 	{
 		for (unsigned int j = 0; j < r->pattern_size; j+=r->block_size)
 		{
-			dev->ActivateTriggerIn(TRIGGER, RESET);
 			send_data = data + j;
 
 			timer_start = std::chrono::system_clock::now();
