@@ -19,7 +19,7 @@ void ITimer::determineRegisterParameters(unsigned int mode, unsigned int &regist
 	{
 		case BIT32:
 			register_size = 4;
-			max_register_size = std::numeric_limits<int>::max();
+			max_register_size = std::numeric_limits<unsigned int>::max();
 			break;
 
 		case NONSYM:
@@ -29,7 +29,7 @@ void ITimer::determineRegisterParameters(unsigned int mode, unsigned int &regist
 
 		case DUPLEX:
 			register_size = 4;
-			max_register_size = std::numeric_limits<int>::max();
+			max_register_size = std::numeric_limits<unsigned int>::max();
 			break;
 
 		default:
@@ -76,7 +76,7 @@ void ITimer::generateData(unsigned char *data)
 	{
 		iter = 1;
 		uint64_t last_possible_value = max_register_size / 2 + 1;
-		for (int i=0; i < r->pattern_size; i+=register_size)
+		for (unsigned int i=0; i < r->pattern_size; i+=register_size)
 		{
 			for (auto j=0; j < register_size; j++)
 			{
@@ -130,7 +130,7 @@ void Write::performTimer(unsigned char *data)
 	generateData(data);
 	timer_start = std::chrono::system_clock::now();
 	dev->ActivateTriggerIn(TRIGGER, START_TIMER);
-	for (auto i=0; i<cfgs.iterations; i++)
+	for (unsigned int i=0; i<cfgs.iterations; i++)
 	{
 		dev->ActivateTriggerIn(TRIGGER, RESET_PATTERN);
 		dev->WriteToPipeIn(PIPE_IN, r->pattern_size, data);
@@ -147,9 +147,9 @@ void Duplex::performTimer(unsigned char *data)
 	unsigned char *send_data;
 	unsigned char *received_data = new unsigned char[r->block_size];
 	int errors = 0;
-	for (auto i=0; i<cfgs.iterations; i++)
+	for (unsigned int i=0; i<cfgs.iterations; i++)
 	{
-		for (auto j = 0; j < r->pattern_size; j+=r->block_size)
+		for (unsigned int j = 0; j < r->pattern_size; j+=r->block_size)
 		{
 			dev->ActivateTriggerIn(TRIGGER, RESET);
 			send_data = data + j;

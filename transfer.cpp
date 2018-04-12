@@ -59,7 +59,7 @@ void TransferController::runOnSpecificPattern()
 	for (const auto &pattern : cfgs.pattern_v)
 	{
 		DLOG(INFO) << "Current pattern: " << pattern;
-		for (auto i = 1; i <= cfgs.statistic_iter; i++)
+		for (unsigned int i = 1; i <= cfgs.statistic_iter; i++)
 		{
 			DLOG(INFO) << "Current statistical iteration: " << i;
 			r->stat_iteration = i;
