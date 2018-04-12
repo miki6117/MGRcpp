@@ -150,7 +150,7 @@ void TransferController::specifyDepth(std::vector<unsigned int> &depth_v)
 	}
 	else
 	{
-		depth_v = {1024}; // TODO: Fill in (2048????)
+		depth_v = {2048}; // TODO: Fill in (2048????)
 		DLOG(INFO) << "Depth values specified for DUPLEX mode";
 	}
 }
