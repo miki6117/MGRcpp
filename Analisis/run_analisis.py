@@ -142,7 +142,7 @@ class ResultsHandler(object):
 		self.target_speed = target_speed
 		self.basic_properties = basic_properties
 
-	def __iterate_using_params(self, first_param_label, second_param_label, third_param_label):
+	def __iterate_using_params(self, first_param_label, second_param_label, third_param_label, valid_modes):
 		list_of_param_dicts = []
 		for mode in self.basic_properties['Mode']:
 			for direction in self.basic_properties['Direction']:
@@ -155,7 +155,9 @@ class ResultsHandler(object):
 							y_param = []
 							yerr_param = []
 							for row in self.list_of_results_dicts:
-								if ((mode == row['Mode']) and (direction == row['Direction']) and
+								if ((mode == row['Mode']) and
+									(mode in valid_modes) and
+									(direction == row['Direction']) and
 									(first_param == row[first_param_label]) and
 									(second_param == row[second_param_label]) and
 									(third_param == row[third_param_label])):
@@ -186,9 +188,11 @@ class ResultsHandler(object):
 		first_param_label = plotting_option['first_param']
 		second_param_label = plotting_option['second_param']
 		third_param_label = plotting_option['third_param']
+		valid_modes = plotting_option['valid_modes']
 		list_of_param_dicts = self.__iterate_using_params(first_param_label,
 														  second_param_label,
-														  third_param_label)
+														  third_param_label,
+														  valid_modes)
 		return list_of_param_dicts
 
 	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):

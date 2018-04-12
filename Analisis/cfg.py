@@ -1,5 +1,5 @@
 """Specify path to csv file that contains transfer results"""
-CSV_FILE = '../debug/results/test_result.csv'
+CSV_FILE = './AnalisisFromServer/test_resultDUPLEX.csv'
 
 """Specify separator in csv file"""
 SEPARATOR = ';'
@@ -29,7 +29,7 @@ FLOAT_VALUES = ['PC time(total) [us]', 'PC time(per iteration) [us]',
 				'SpeedFPGA [B/s]']
 
 """Names of heads after refactoring"""
-REFACTORED_HEADS = ['Mode', 'Direction', 'FifoMemoryType', 'FifoDepth', 'PatternSize', 'DataPattern', 'SpeedPC', 'u(PC)', 'SpeedFPGA', 'u(FPGA)', 'Average', 'u(av)']
+REFACTORED_HEADS = ['Mode', 'Direction', 'FifoMemoryType', 'FifoDepth', 'PatternSize', 'BlockSize', 'DataPattern', 'SpeedPC', 'u(PC)', 'SpeedFPGA', 'u(FPGA)', 'Average', 'u(av)']
 
 """Metadata for figure objects"""
 FIGURE_METADATA = {
@@ -45,10 +45,11 @@ FIGURE_METADATA = {
 
 """Properties that can be combined with each other"""
 BASIC_PROPERTIES = {
-	'Mode' : ['nonsym', '32bit'],
-	'Direction' : ['read', 'write'],
+	'Mode' : ['nonsym', '32bit', 'duplex'],
+	'Direction' : ['read', 'write', 'bidir'],
 	'FifoMemoryType' : ['blockram', 'distributedram', 'shiftregister'],
 	'FifoDepth': [16, 32, 64, 256, 1024],
+	'BlockSize': [16, 64, 256, 1024],
 	'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1']
 }
 
@@ -57,6 +58,7 @@ PLOTTING_OPTIONS = {
 	'memtype_depth_pattern' : {
 		'title' : 'Fifo memory type: {}. Depth = {}',
 		'savefig' : '{}_{}_{}_patterns.png',
+		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'FifoMemoryType',
 		'second_param' : 'FifoDepth',
 		'third_param' : 'DataPattern',
@@ -69,6 +71,7 @@ PLOTTING_OPTIONS = {
 	'depth_pattern_memtype' : {
 		'title' : 'Fifo depth: {}. Pattern type = {}',
 		'savefig' : '{}_{}_{}_memory_types.png',
+		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'FifoDepth',
 		'second_param' : 'DataPattern',
 		'third_param' : 'FifoMemoryType',
@@ -81,12 +84,53 @@ PLOTTING_OPTIONS = {
 	'pattern_memtype_depth' : {
 		'title' : 'Pattern type: {}. Fifo memory type: {}',
 		'savefig' : '{}_{}_{}_depths.png',
+		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'DataPattern',
 		'second_param' : 'FifoMemoryType',
 		'third_param' : 'FifoDepth',
 		'legend' : {
 			16 : 'ro',
 			32 : 'y^',
+			64 : 'g*',
+			256 : 'b+',
+			1024 : 'mv'
+		}
+	},
+	'duplex_memtype_blocksize_pattern': {
+		'title': 'Fifo memory type: {}. Block size = {}',
+		'savefig': '{}_{}_{}_patterns.png',
+		'valid_modes': ['duplex'],
+		'first_param': 'FifoMemoryType',
+		'second_param': 'BlockSize',
+		'third_param': 'DataPattern',
+		'legend': {
+			'counter_8bit': 'ro',
+			'counter_32bit': 'g*',
+			'walking_1': 'b+'
+		}
+	},
+	'duplex_blocksize_pattern_memtype': {
+		'title' : 'Block size: {}. Pattern type = {}',
+		'savefig' : '{}_{}_{}_memory_types.png',
+		'valid_modes': ['duplex'],
+		'first_param' : 'BlockSize',
+		'second_param' : 'DataPattern',
+		'third_param' : 'FifoMemoryType',
+		'legend' : {
+			'blockram' : 'ro',
+			'distributedram' : 'g*',
+			'shiftregister' : 'b+'
+		}
+	},
+	'duplex_pattern_memtype_blocksize': {
+		'title' : 'Pattern type: {}. Fifo memory type: {}',
+		'savefig' : '{}_{}_{}_blocksizes.png',
+		'valid_modes': ['duplex'],
+		'first_param' : 'DataPattern',
+		'second_param' : 'FifoMemoryType',
+		'third_param' : 'BlockSize',
+		'legend' : {
+			16 : 'ro',
 			64 : 'g*',
 			256 : 'b+',
 			1024 : 'mv'
