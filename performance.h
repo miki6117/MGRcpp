@@ -17,7 +17,7 @@
 constexpr int MAX_PATTERN_SIZE {1073741824};
 constexpr double FIFO_CLOCK    {100.8};
 
-enum Widths     {BIT32, NONSYM, DUPLEX};
+enum Modes      {BIT32, NONSYM, DUPLEX};
 enum Directions {READ, WRITE};
 enum Memories   {BLOCKRAM, DISTRIBUTEDRAM, SHIFTREGISTER};
 enum Patterns   {COUNTER_8BIT, COUNTER_32BIT, WALKING_1};
@@ -243,6 +243,33 @@ class Duplex : public ITimer
 		}
 
 		virtual void performTimer(unsigned char *data);
+};
+
+class DataGenerator
+{
+	public:
+		DataGenerator(Modes mode, Patterns pattern, unsigned int pattern_size) :
+		mode{mode}, pattern{pattern}, pattern_size{pattern_size}, errors{0}
+		{
+			DLOG(INFO) << "DataGenerator class initialized";
+		}
+
+		unsigned int checkArrayForErrors(unsigned char *data);
+		void fillArrayWithData(unsigned char *data);
+
+	private:
+		bool check_for_errors;
+		unsigned char *data;
+		unsigned int mode, pattern, pattern_size;
+		unsigned int errors, register_size;
+		uint64_t max_register_size;
+
+		void performActionOnGeneratedData(const unsigned char &data_char, unsigned int index);
+		void walking1();
+		void counter32Bit();
+		void counter8Bit();
+		void determineRegisterParameters();
+		void generateData();
 };
 
 #endif // FIFO_PERFORMANCE_H__
