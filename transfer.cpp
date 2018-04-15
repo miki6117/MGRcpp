@@ -40,22 +40,9 @@ void TransferController::runTestBasedOnParameters()
 	delete[] data;
 }
 
-void TransferController::checkIfOpen()
-{
-	DLOG(INFO) << "Checking if device is open...";
-	if (dev->IsOpen())
-	{
-		DLOG(INFO) << "Device is open";
-	}
-	else
-	{
-		LOG(FATAL) << "Device disconnected. Program stopped";
-	}
-}
-
 void TransferController::runOnSpecificPattern()
 {
-	checkIfOpen();
+	okdev::checkIfOpen(dev);
 	for (const auto &pattern : cfgs.pattern_v)
 	{
 		DLOG(INFO) << "Current pattern: " << pattern;
@@ -95,17 +82,7 @@ void TransferController::setupFPGA()
 	std::string bitfile_name = r->direction + "_" + r->mode + "_fifo_" + r->memory + \
 							   "_" + std::to_string(r->depth) + ".bit";
 	std::string bitfile_to_load = bitfiles + bitfile_name;
-	DLOG(INFO) << "FPGA configure file: " << bitfile_to_load;
-	auto err_code = dev->ConfigureFPGA(bitfile_to_load);
-	if (err_code == okCFrontPanel::NoError) 
-	{
-		LOG(INFO) << "Configure status for file " << bitfile_name << " : all ok";
-	}
-	else
-	{
-		LOG(FATAL) << "FPGA configuration failed [" << dev->GetErrorString(err_code)
-				   << "] for file " << bitfile_name;
-	}
+	okdev::setupFPGA(dev, bitfile_to_load);
 }
 
 void TransferController::runOnSpecificDepth(std::vector<unsigned int> &depth_v)

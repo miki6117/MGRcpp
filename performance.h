@@ -172,7 +172,6 @@ class TransferController
 		unsigned int transfer_mode;
 
 		void runTestBasedOnParameters();
-		void checkIfOpen();
 		void runOnSpecificPattern();
 		void runOnSpecificPatternSize();
 		void setupFPGA();
