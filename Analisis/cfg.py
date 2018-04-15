@@ -1,11 +1,11 @@
 """Specify path to csv file that contains transfer results"""
-CSV_FILE = './AnalisisFromServer/test_resultDUPLEX.csv'
+CSV_FILE = './AnalisisFromServer/test_resultVER1.csv'
 
 """Specify separator in csv file"""
 SEPARATOR = ';'
 
 """Specify number of statistical iterations based on config file"""
-STATISTICAL_ITERATIONS = 2
+STATISTICAL_ITERATIONS = 10
 
 """Check if any error occured during transfer and return it on stdout"""
 CHECK_FOR_ERRORS = False
