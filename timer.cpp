@@ -99,7 +99,6 @@ void ITimer::prepareForTransfer(unsigned char *data)
 	dev->SetWireInValue(PATTERN_TO_GENERATE, cfgs.pattern_m[r->pattern]);
 	dev->UpdateWireIns();
 	dev->ActivateTriggerIn(TRIGGER, RESET);
-	void timer(unsigned char *data);
 }
 
 // READ
