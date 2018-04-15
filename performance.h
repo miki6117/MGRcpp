@@ -33,6 +33,12 @@ enum Endpoints
 	TRIGGER = 0x40
 };
 
+namespace okdev
+{
+	void checkIfOpen(okCFrontPanel *dev);
+	void openDevice(okCFrontPanel *dev);
+	void setupFPGA(okCFrontPanel *dev, const std::string &path_to_bitfile);
+}
 
 class Configurations 
 {
