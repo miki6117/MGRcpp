@@ -171,6 +171,9 @@ class TransferController
 		Results *r;
 		unsigned int transfer_mode;
 
+		void performReadTimer();
+		void performWriteTimer();
+		void performDuplexTimer();
 		void runTestBasedOnParameters();
 		void runOnSpecificPattern();
 		void runOnSpecificPatternSize();
@@ -182,73 +185,10 @@ class TransferController
 		void runOnSpecificMode();
 };
 
-class ITimer
-{
-	public:
-		ITimer(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
-		dev{dev}, r{r}, cfgs{cfgs}
-		{
-			DLOG(INFO) << "Timer interface initialized";
-		}
-		virtual ~ITimer() {}
-		void prepareForTransfer(unsigned char *data);
-	
-		bool check_for_errors;
-		okCFrontPanel *dev;
-		Results *r;
-		Configurations &cfgs;
-		std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
-
-		virtual void performTimer(unsigned char *data) = 0;
-		void generateData(unsigned char *data);
-	private:
-		void determineRegisterParameters(unsigned int mode, unsigned int &register_size, uint64_t &max_register_size);
-		void performActionOnGeneratedData(const unsigned char &data_char, unsigned char *data, int index);
-};
-
-class Read : public ITimer
-{
-	public:
-		Read(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
-		ITimer(dev, r, cfgs)
-		{
-			check_for_errors = true;
-			DLOG(INFO) << "Read class initialized";
-		}
-
-		virtual void performTimer(unsigned char *data);
-};
-
-class Write : public ITimer
-{
-	public:
-		Write(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
-		ITimer(dev, r, cfgs)
-		{
-			check_for_errors = false;
-			DLOG(INFO) << "Write class initialized";
-		}
-
-		virtual void performTimer(unsigned char *data);
-};
-
-class Duplex : public ITimer
-{
-	public:
-		Duplex(okCFrontPanel *dev, Results *r, Configurations &cfgs) :
-		ITimer(dev, r, cfgs)
-		{
-			check_for_errors = false;
-			DLOG(INFO) << "Duplex class initialized";
-		}
-
-		virtual void performTimer(unsigned char *data);
-};
-
 class DataGenerator
 {
 	public:
-		DataGenerator(Modes mode, Patterns pattern, unsigned int pattern_size) :
+		DataGenerator(unsigned int mode, unsigned int pattern, unsigned int pattern_size) :
 		mode{mode}, pattern{pattern}, pattern_size{pattern_size}, errors{0}
 		{
 			DLOG(INFO) << "DataGenerator class initialized";
@@ -270,6 +210,73 @@ class DataGenerator
 		void counter8Bit();
 		void determineRegisterParameters();
 		void generateData();
+};
+
+class ITimer
+{
+	public:
+		ITimer(okCFrontPanel *dev, unsigned int mode, unsigned int pattern, bool check_for_errors) :
+		dev{dev}, mode{mode}, pattern{pattern}, check_for_errors{check_for_errors}
+		{
+			DLOG(INFO) << "Timer interface initialized";
+		}
+		virtual ~ITimer() {}
+	
+		okCFrontPanel *dev;
+
+		bool check_for_errors;
+		unsigned int errors;
+		std::chrono::duration<double, std::micro> pc_duration_total;
+		std::chrono::time_point<std::chrono::system_clock> timer_start, timer_stop;
+
+		void performActionOnData(unsigned char *data, unsigned int pattern_size);
+		void prepareForTransfer();
+
+		virtual void performTimer(unsigned int pattern_size, unsigned int iterations) = 0;
+
+	private:
+		unsigned int mode, pattern;
+
+};
+
+class Read : public ITimer
+{
+	public:
+		Read(okCFrontPanel *dev, unsigned int mode, unsigned int pattern) :
+		ITimer(dev, mode, pattern, true)
+		{
+			DLOG(INFO) << "Read class initialized";
+		}
+
+		virtual void performTimer(unsigned int pattern_size, unsigned int iterations);
+};
+
+class Write : public ITimer
+{
+	public:
+		Write(okCFrontPanel *dev, unsigned int mode, unsigned int pattern) :
+		ITimer(dev, mode, pattern, false)
+		{
+			DLOG(INFO) << "Write class initialized";
+		}
+
+		virtual void performTimer(unsigned int pattern_size, unsigned int iterations);
+};
+
+class Duplex : public ITimer
+{
+	public:
+		Duplex(okCFrontPanel *dev, unsigned int mode, unsigned int pattern, unsigned int block_size) :
+		ITimer(dev, mode, pattern, false), block_size{block_size}
+		{
+			DLOG(INFO) << "Duplex class initialized";
+		}
+
+		virtual void performTimer(unsigned int pattern_size, unsigned int iterations);
+
+	private:
+		unsigned int block_size;
+		void checkIfReceivedEqualsSend(unsigned char *send_data, unsigned char *received_data);
 };
 
 #endif // FIFO_PERFORMANCE_H__

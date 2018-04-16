@@ -3,6 +3,32 @@
 
 // #undef max // Uncomment for Windows
 
+void TransferController::performDuplexTimer()
+{
+	DLOG(INFO) << "Setting duplex timer";
+	Duplex duplex_timer(dev, cfgs.mode_m[r->mode], cfgs.pattern_m[r->pattern], r->block_size);
+	duplex_timer.performTimer(r->pattern_size, cfgs.iterations);
+	r->pc_duration_total = duplex_timer.pc_duration_total;
+	r->errors = duplex_timer.errors;
+}
+
+void TransferController::performWriteTimer()
+{
+	DLOG(INFO) << "Setting write timer";
+	Write write_timer(dev, cfgs.mode_m[r->mode], cfgs.pattern_m[r->pattern]);
+	write_timer.performTimer(r->pattern_size, cfgs.iterations);
+	r->pc_duration_total = write_timer.pc_duration_total;
+}
+
+void TransferController::performReadTimer()
+{
+	DLOG(INFO) << "Setting read timer";
+	Read read_timer(dev, cfgs.mode_m[r->mode], cfgs.pattern_m[r->pattern]);
+	read_timer.performTimer(r->pattern_size, cfgs.iterations);
+	r->pc_duration_total = read_timer.pc_duration_total;
+	r->errors = read_timer.errors;
+}
+
 void TransferController::runTestBasedOnParameters()
 {
 	DLOG(INFO) << "Current mode: " << r->mode;
@@ -12,32 +38,24 @@ void TransferController::runTestBasedOnParameters()
 	DLOG(INFO) << "Current size: " << r->pattern_size;
 	DLOG(INFO) << "Current pattern: " << r->pattern;
 
-	unsigned char* data = new unsigned char[r->pattern_size];
 	auto dir = cfgs.direction_m[r->direction];
 
 	if (transfer_mode != DUPLEX)
 	{
 		if (dir == READ)
 		{
-			DLOG(INFO) << "Setting read timer";
-			Read read_timer(dev, r, cfgs);
-			read_timer.performTimer(data); // TODO: maybe data can be in ITimer class declared??
+			performReadTimer();
 		}
 		else if (dir == WRITE)
 		{
-			DLOG(INFO) << "Setting write timer";
-			Write write_timer(dev, r, cfgs);
-			write_timer.performTimer(data);
+			performWriteTimer();
 		}
 	}
 	else
 	{
-		DLOG(INFO) << "Setting bidir timer";
-		Duplex duplex_timer(dev, r, cfgs);
-		duplex_timer.performTimer(data);
+		performDuplexTimer();
 	}
 	r->saveResultsToFile();
-	delete[] data;
 }
 
 void TransferController::runOnSpecificPattern()
