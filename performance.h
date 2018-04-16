@@ -43,7 +43,23 @@ namespace okdev
 class Configurations 
 {
 	public:
-		Configurations(const char *path_to_cfg)
+		Configurations(const char *path_to_cfg) :
+		mode_m{{"32bit", BIT32}, {"nonsym", NONSYM}, {"duplex", DUPLEX}},
+		direction_m{{"read", READ}, {"write", WRITE}},
+		pattern_m{{"counter_8bit", COUNTER_8BIT}, {"counter_32bit", COUNTER_32BIT},
+			{"walking_1", WALKING_1}},
+		path_regex{"(\\.|\\.\\.)[a-zA-Z0-9/\\ _-]*/$"},
+		headers_default{"Time", "Mode", "Direction",
+			"FifoMemoryType", "FifoDepth", "PatternSize", "BlockSize", "DataPattern", 
+			"Iterations", "StatisticalIter", "CountsInFPGA", "FPGA time(total) [us]", 
+			"FPGA time(per iteration) [us]", "PC time(total) [us]", 
+			"PC time(per iteration) [us]", "SpeedPC [B/s]", "SpeedFPGA [B/s]", "Errors"},
+		mode_default{"32bit", "nonsym", "duplex"},
+		direction_default{"read", "write"},
+		memory_default{"blockram", "distributedram", "shiftregister"},
+		depth_default{16, 64, 256, 1024, 2048},
+		block_size_default{16, 64, 256, 1024},
+		pattern_default{"counter_8bit", "counter_32bit", "walking_1"}
 		{
 			DLOG(INFO) << "Initialization Configuration class";
 			libconfig::Config cfg;
@@ -77,34 +93,26 @@ class Configurations
 		unsigned int iterations;
 
 		// Default hashes for params
-		std::map<std::string, unsigned int> mode_m 
-			{{"32bit", BIT32}, {"nonsym", NONSYM}, {"duplex", DUPLEX}};
-		std::map<std::string, unsigned int> direction_m 
-			{{"read", READ}, {"write", WRITE}};
-		std::map<std::string, unsigned int> pattern_m 
-			{{"counter_8bit", COUNTER_8BIT}, {"counter_32bit", COUNTER_32BIT}, 
-			 {"walking_1", WALKING_1}};
+		std::map<std::string, unsigned int> mode_m;
+		std::map<std::string, unsigned int> direction_m;
+		std::map<std::string, unsigned int> pattern_m;
 		
 		void writeHeadersToResultFile();
 
 	private:
-		const std::regex path_regex{"(\\.|\\.\\.)[a-zA-Z0-9/\\ _-]*/$"};
+		const std::regex path_regex;
 		std::vector<std::string> headers_v;
 		
-		// Default values for paramaters TODO: change to const
-		std::vector<std::string> headers_default {"Time", "Mode", "Direction",
-				"FifoMemoryType", "FifoDepth", "PatternSize", "BlockSize", "DataPattern", 
-				"Iterations", "StatisticalIter", "CountsInFPGA", "FPGA time(total) [us]", 
-				"FPGA time(per iteration) [us]", "PC time(total) [us]", 
-				"PC time(per iteration) [us]", "SpeedPC [B/s]", "SpeedFPGA [B/s]", "Errors"};
-		std::vector<std::string> mode_default {"32bit", "nonsym", "duplex"};
-		std::vector<std::string> direction_default {"read", "write"};
-		std::vector<std::string> memory_default {"blockram", "distributedram", "shiftregister"};
-		std::vector<unsigned int> depth_default {16, 64, 256, 1024, 2048};
+		// Default values for paramaters
+		std::vector<std::string> headers_default;
+		std::vector<std::string> mode_default;
+		std::vector<std::string> direction_default;
+		std::vector<std::string> memory_default;
+		std::vector<unsigned int> depth_default;
 		std::vector<unsigned int> pattern_size_default;
 		std::vector<unsigned int> pattern_size_duplex_default;
-		std::vector<unsigned int> block_size_default {16, 64, 256, 1024};
-		std::vector<std::string> pattern_default {"counter_8bit", "counter_32bit", "walking_1"};
+		std::vector<unsigned int> block_size_default;
+		std::vector<std::string> pattern_default;
 
 		template <class T>
 		void vectorParser (std::vector<T> &parse_v, std::vector<T> &default_v, 
@@ -121,7 +129,8 @@ class Configurations
 class Results
 {
 	public:
-		Results(okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
+		Results(okCFrontPanel *dev, Configurations &cfgs) :
+		dev{dev}, cfgs{cfgs}, MEGA{1000000}
 		{
 			DLOG(INFO) << "Results class initialized";
 		};
@@ -138,7 +147,7 @@ class Results
 		void saveResultsToFile();
 
 	private:
-		const int MEGA = 1000000;
+		const int MEGA;
 		double fpga_time_total, fpga_time_periteravg;
 		double pc_time_total, pc_time_periteravg;
 		double fpga_speed, pc_speed;
@@ -154,7 +163,8 @@ class Results
 class TransferController
 {
 	public:
-		TransferController(okCFrontPanel *dev, Configurations &cfgs) : dev{dev}, cfgs{cfgs}
+		TransferController(okCFrontPanel *dev, Configurations &cfgs) :
+		dev{dev}, cfgs{cfgs}
 		{
 			DLOG(INFO) << "TransferController class initialized";
 		}
