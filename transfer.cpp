@@ -3,42 +3,56 @@
 
 // #undef max // Uncomment for Windows
 
+void TransferController::saveResults()
+{
+	Results results(dev, cfgs);
+	results.block_size = block_size;
+	results.depth = depth;
+	results.pattern_size = pattern_size;
+	results.stat_iteration = stat_iteration;
+	results.mode = mode;
+	results.direction = direction;
+	results.memory = memory;
+	results.pattern = pattern;
+	results.saveResultsToFile();
+}
+
 void TransferController::performDuplexTimer()
 {
 	DLOG(INFO) << "Setting duplex timer";
-	Duplex duplex_timer(dev, cfgs.mode_m[r->mode], cfgs.pattern_m[r->pattern], r->block_size);
-	duplex_timer.performTimer(r->pattern_size, cfgs.iterations);
-	r->pc_duration_total = duplex_timer.pc_duration_total;
-	r->errors = duplex_timer.errors;
+	Duplex duplex_timer(dev, cfgs.mode_m[mode], cfgs.pattern_m[pattern], block_size);
+	duplex_timer.performTimer(pattern_size, cfgs.iterations);
+	pc_duration_total = duplex_timer.pc_duration_total;
+	errors = duplex_timer.errors;
 }
 
 void TransferController::performWriteTimer()
 {
 	DLOG(INFO) << "Setting write timer";
-	Write write_timer(dev, cfgs.mode_m[r->mode], cfgs.pattern_m[r->pattern]);
-	write_timer.performTimer(r->pattern_size, cfgs.iterations);
-	r->pc_duration_total = write_timer.pc_duration_total;
+	Write write_timer(dev, cfgs.mode_m[mode], cfgs.pattern_m[pattern]);
+	write_timer.performTimer(pattern_size, cfgs.iterations);
+	pc_duration_total = write_timer.pc_duration_total;
 }
 
 void TransferController::performReadTimer()
 {
 	DLOG(INFO) << "Setting read timer";
-	Read read_timer(dev, cfgs.mode_m[r->mode], cfgs.pattern_m[r->pattern]);
-	read_timer.performTimer(r->pattern_size, cfgs.iterations);
-	r->pc_duration_total = read_timer.pc_duration_total;
-	r->errors = read_timer.errors;
+	Read read_timer(dev, cfgs.mode_m[mode], cfgs.pattern_m[pattern]);
+	read_timer.performTimer(pattern_size, cfgs.iterations);
+	pc_duration_total = read_timer.pc_duration_total;
+	errors = read_timer.errors;
 }
 
 void TransferController::runTestBasedOnParameters()
 {
-	DLOG(INFO) << "Current mode: " << r->mode;
-	DLOG(INFO) << "Current direction transfer: " << r->direction;
-	DLOG(INFO) << "Current FIFO memory: " << r->memory;
-	DLOG(INFO) << "Current FIFO depth value: " << r->depth;
-	DLOG(INFO) << "Current size: " << r->pattern_size;
-	DLOG(INFO) << "Current pattern: " << r->pattern;
+	DLOG(INFO) << "Current mode: " << mode;
+	DLOG(INFO) << "Current direction transfer: " << direction;
+	DLOG(INFO) << "Current FIFO memory: " << memory;
+	DLOG(INFO) << "Current FIFO depth value: " << depth;
+	DLOG(INFO) << "Current size: " << pattern_size;
+	DLOG(INFO) << "Current pattern: " << pattern;
 
-	auto dir = cfgs.direction_m[r->direction];
+	auto dir = cfgs.direction_m[direction];
 
 	if (transfer_mode != DUPLEX)
 	{
@@ -55,7 +69,7 @@ void TransferController::runTestBasedOnParameters()
 	{
 		performDuplexTimer();
 	}
-	r->saveResultsToFile();
+	saveResults();
 }
 
 void TransferController::runOnSpecificPattern()
@@ -67,8 +81,8 @@ void TransferController::runOnSpecificPattern()
 		for (unsigned int i = 1; i <= cfgs.statistic_iter; i++)
 		{
 			DLOG(INFO) << "Current statistical iteration: " << i;
-			r->stat_iteration = i;
-			r->pattern = pattern;
+			stat_iteration = i;
+			this->pattern = pattern;
 			runTestBasedOnParameters();
 		}
 	}
@@ -80,14 +94,14 @@ void TransferController::runOnSpecificPatternSize()
 	{
 		for (const auto &block_size : cfgs.block_size_v)
 		{
-			r->block_size = block_size;
+			this->block_size = block_size;
 			DLOG(INFO) << "Duplex block size set to: " << block_size;
 			runOnSpecificPattern();
 		}
 	}
 	else
 	{
-		r->block_size = r->pattern_size;
+		block_size = pattern_size;
 		DLOG(INFO) << "Non duplex mode. Block size will be the same as pattern size";
 		runOnSpecificPattern();
 	}
@@ -95,10 +109,10 @@ void TransferController::runOnSpecificPatternSize()
 
 void TransferController::setupFPGA()
 {
-	std::string bitfiles = cfgs.bitfiles_path + r->mode + "/";
+	std::string bitfiles = cfgs.bitfiles_path + mode + "/";
 	DLOG(INFO) << "Path to bitfiles for current transfer mode: " << bitfiles;
-	std::string bitfile_name = r->direction + "_" + r->mode + "_fifo_" + r->memory + \
-							   "_" + std::to_string(r->depth) + ".bit";
+	std::string bitfile_name = direction + "_" + mode + "_fifo_" + memory + \
+							   "_" + std::to_string(depth) + ".bit";
 	std::string bitfile_to_load = bitfiles + bitfile_name;
 	okdev::setupFPGA(dev, bitfile_to_load);
 }
@@ -107,12 +121,12 @@ void TransferController::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
 {
 	for (const auto &depth : depth_v)
 	{
-		r->depth = depth;
+		this->depth = depth;
 		DLOG(INFO) << "FIFO depth value set to: " << depth;
 		setupFPGA();
 		for (const auto &size : cfgs.pattern_size_v)
 		{
-			r->pattern_size = size;
+			this->pattern_size = size;
 			runOnSpecificPatternSize();
 		}
 	}
@@ -120,7 +134,7 @@ void TransferController::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
 
 void TransferController::specifyDepth(std::vector<unsigned int> &depth_v)
 {
-	auto direction = cfgs.direction_m[r->direction];
+	auto dir = cfgs.direction_m[direction];
 
 	DLOG(INFO) << "Specifying depth based on " << transfer_mode << " mode and " 
 			   << direction << " direction";
@@ -128,7 +142,7 @@ void TransferController::specifyDepth(std::vector<unsigned int> &depth_v)
 	if (transfer_mode != DUPLEX)
 	{
 		depth_v = cfgs.depth_v;
-		if (transfer_mode == NONSYM && direction == WRITE)
+		if (transfer_mode == NONSYM && dir == WRITE)
 		{
 			unsigned int depth_val_to_change = 16;
 			for (auto &depth : depth_v)
@@ -160,7 +174,7 @@ void TransferController::specifyDirection(std::vector<std::string> &direction_v)
 	{
 		direction_v = cfgs.direction_v;
 	}
-	DLOG(INFO) << "Specified direction for " << r->mode;
+	DLOG(INFO) << "Specified direction for " << mode;
 }
 
 void TransferController::runOnSpecificMemory(std::vector<std::string> &memory_v)
@@ -170,11 +184,11 @@ void TransferController::runOnSpecificMemory(std::vector<std::string> &memory_v)
 
 	for (const auto &direction : direction_v)
 	{
-		r->direction = direction;
+		this->direction = direction;
 		DLOG(INFO) << "Direction transfer mode set to: " << direction;
 		for (const auto &memory : memory_v)
 		{
-			r->memory = memory;
+			this->memory = memory;
 			DLOG(INFO) << "FIFO memory mode set to: " << memory;
 			std::vector<unsigned int> depth_v;
 			specifyDepth(depth_v);
@@ -195,21 +209,21 @@ void TransferController::runOnSpecificMode()
 	else
 	{
 		memory_v_for_specific_mode = cfgs.memory_v;
-		DLOG(INFO) << "Initialized memory vector for: " << r->mode;
+		DLOG(INFO) << "Initialized memory vector for: " << mode;
 	}
 	runOnSpecificMemory(memory_v_for_specific_mode);
 }
 
 void TransferController::performTransferController()
 {
-	r = new Results(dev, cfgs);
+	// r = new Results(dev, cfgs);
 	DLOG(INFO) << "Memory allocated for Results class";
 	for (const auto &mode : cfgs.mode_v)
 	{
-		r->mode = mode;
+		this->mode = mode;
 		transfer_mode = cfgs.mode_m[mode];
 		DLOG(INFO) <<  "Transfer mode set to: : " << mode;
 		runOnSpecificMode();
 	}
-	delete r;
+	// delete r;
 }

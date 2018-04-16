@@ -178,9 +178,14 @@ class TransferController
 	private:
 		okCFrontPanel *dev;
 		Configurations &cfgs;
-		Results *r;
+		// Results *r;
 		unsigned int transfer_mode;
 
+		unsigned int block_size, depth, errors, pattern_size, stat_iteration;
+		std::string mode, direction, memory, pattern;
+		std::chrono::duration<double, std::micro> pc_duration_total;
+
+		void saveResults();
 		void performReadTimer();
 		void performWriteTimer();
 		void performDuplexTimer();
