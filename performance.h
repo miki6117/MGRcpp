@@ -178,7 +178,8 @@ class TransferController
 	private:
 		okCFrontPanel *dev;
 		Configurations &cfgs;
-		// Results *r;
+
+		unsigned int transfer_direction;
 		unsigned int transfer_mode;
 
 		unsigned int block_size, depth, errors, pattern_size, stat_iteration;
@@ -220,6 +221,7 @@ class DataGenerator
 		uint64_t max_register_size;
 
 		void performActionOnGeneratedData(const unsigned char &data_char, unsigned int index);
+		void asic();
 		void walking1();
 		void counter32Bit();
 		void counter8Bit();

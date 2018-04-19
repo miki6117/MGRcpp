@@ -52,15 +52,13 @@ void TransferController::runTestBasedOnParameters()
 	DLOG(INFO) << "Current size: " << pattern_size;
 	DLOG(INFO) << "Current pattern: " << pattern;
 
-	auto dir = cfgs.direction_m[direction];
-
 	if (transfer_mode != DUPLEX)
 	{
-		if (dir == READ)
+		if (transfer_direction == READ)
 		{
 			performReadTimer();
 		}
-		else if (dir == WRITE)
+		else if (transfer_direction == WRITE)
 		{
 			performWriteTimer();
 		}
@@ -77,12 +75,12 @@ void TransferController::runOnSpecificPattern()
 	okdev::checkIfOpen(dev);
 	for (const auto &pattern : cfgs.pattern_v)
 	{
+		this->pattern = pattern;
 		DLOG(INFO) << "Current pattern: " << pattern;
 		for (unsigned int i = 1; i <= cfgs.statistic_iter; i++)
 		{
-			DLOG(INFO) << "Current statistical iteration: " << i;
 			stat_iteration = i;
-			this->pattern = pattern;
+			DLOG(INFO) << "Current statistical iteration: " << i;
 			runTestBasedOnParameters();
 		}
 	}
@@ -126,7 +124,7 @@ void TransferController::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
 		setupFPGA();
 		for (const auto &size : cfgs.pattern_size_v)
 		{
-			this->pattern_size = size;
+			pattern_size = size;
 			runOnSpecificPatternSize();
 		}
 	}
@@ -134,7 +132,7 @@ void TransferController::runOnSpecificDepth(std::vector<unsigned int> &depth_v)
 
 void TransferController::specifyDepth(std::vector<unsigned int> &depth_v)
 {
-	auto dir = cfgs.direction_m[direction];
+	transfer_direction = cfgs.direction_m[direction];
 
 	DLOG(INFO) << "Specifying depth based on " << transfer_mode << " mode and " 
 			   << direction << " direction";
@@ -142,7 +140,7 @@ void TransferController::specifyDepth(std::vector<unsigned int> &depth_v)
 	if (transfer_mode != DUPLEX)
 	{
 		depth_v = cfgs.depth_v;
-		if (transfer_mode == NONSYM && dir == WRITE)
+		if (transfer_mode == NONSYM && transfer_direction == WRITE)
 		{
 			unsigned int depth_val_to_change = 16;
 			for (auto &depth : depth_v)
@@ -216,7 +214,6 @@ void TransferController::runOnSpecificMode()
 
 void TransferController::performTransferController()
 {
-	// r = new Results(dev, cfgs);
 	DLOG(INFO) << "Memory allocated for Results class";
 	for (const auto &mode : cfgs.mode_v)
 	{
@@ -225,5 +222,4 @@ void TransferController::performTransferController()
 		DLOG(INFO) <<  "Transfer mode set to: : " << mode;
 		runOnSpecificMode();
 	}
-	// delete r;
 }
