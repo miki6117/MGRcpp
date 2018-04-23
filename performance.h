@@ -20,7 +20,7 @@ constexpr double FIFO_CLOCK    {100.8};
 enum Modes      {BIT32, NONSYM, DUPLEX};
 enum Directions {READ, WRITE};
 enum Memories   {BLOCKRAM, DISTRIBUTEDRAM, SHIFTREGISTER};
-enum Patterns   {COUNTER_8BIT, COUNTER_32BIT, WALKING_1};
+enum Patterns   {COUNTER_8BIT, COUNTER_32BIT, WALKING_1, ASIC};
 enum Triggers   {RESET, START_TIMER, STOP_TIMER, RESET_PATTERN};
 enum Endpoints
 {
