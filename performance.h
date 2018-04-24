@@ -47,7 +47,7 @@ class Configurations
 		mode_m{{"32bit", BIT32}, {"nonsym", NONSYM}, {"duplex", DUPLEX}},
 		direction_m{{"read", READ}, {"write", WRITE}},
 		pattern_m{{"counter_8bit", COUNTER_8BIT}, {"counter_32bit", COUNTER_32BIT},
-			{"walking_1", WALKING_1}},
+			{"walking_1", WALKING_1}, {"asic", ASIC}},
 		path_regex{"(\\.|\\.\\.)[a-zA-Z0-9/\\ _-]*/$"},
 		headers_default{"Time", "Mode", "Direction",
 			"FifoMemoryType", "FifoDepth", "PatternSize", "BlockSize", "DataPattern", 
@@ -59,7 +59,7 @@ class Configurations
 		memory_default{"blockram", "distributedram", "shiftregister"},
 		depth_default{16, 64, 256, 1024, 2048},
 		block_size_default{16, 64, 256, 1024},
-		pattern_default{"counter_8bit", "counter_32bit", "walking_1"}
+		pattern_default{"counter_8bit", "counter_32bit", "walking_1", "asic"}
 		{
 			DLOG(INFO) << "Initialization Configuration class";
 			libconfig::Config cfg;

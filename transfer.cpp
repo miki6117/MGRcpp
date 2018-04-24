@@ -75,6 +75,11 @@ void TransferController::runOnSpecificPattern()
 	okdev::checkIfOpen(dev);
 	for (const auto &pattern : cfgs.pattern_v)
 	{
+		if (transfer_mode != NONSYM && cfgs.pattern_m[pattern] == ASIC)
+		{
+			DLOG(INFO) << "Incompatible asic pattern with current mode. Skipping.";
+			continue;
+		}
 		this->pattern = pattern;
 		DLOG(INFO) << "Current pattern: " << pattern;
 		for (unsigned int i = 1; i <= cfgs.statistic_iter; i++)

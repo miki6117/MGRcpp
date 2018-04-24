@@ -31,6 +31,7 @@ void DataGenerator::asic()
 	while (i_data < pattern_size)
 	{
 		amplitude = (amplitude << 1) | ((((amplitude >> 11)^(amplitude >> 5)^(amplitude >> 3)) & 1)); // {amplitude[15:0], amplitude[11] ^ amplitude[5] ^ amplitude[3]}; so: x^12 + x^6 + x^4
+		timestamp = i_data; // TODO: Do with something better than that
 		asic_data[0] = static_cast<unsigned char>(id);
 		asic_data[0] += static_cast<unsigned char>(channel << 4); // ID and half of channel
 
@@ -57,6 +58,10 @@ void DataGenerator::asic()
 		{
 			channel = 1;
 			++id;
+		}
+		else
+		{
+			++channel;
 		}
 		if (id == max_id)
 		{
