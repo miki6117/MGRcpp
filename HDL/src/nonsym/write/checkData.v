@@ -18,8 +18,14 @@ always @(posedge clk) begin
     end
 
     if (check_for_errors) begin
-        if(data_to_check != correct_data) begin
-            error_count <= error_count + 1;
+        if (pattern != 3'b011) begin
+            if(data_to_check != correct_data) begin
+                error_count <= error_count + 1;
+            end
+        end else begin
+            if(data_to_check[27:0] != correct_data[27:0]) begin
+                error_count <= error_count + 1;
+            end
         end
     end
 end
