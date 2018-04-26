@@ -8,12 +8,14 @@ void TransferController::saveResults()
 	Results results(dev, cfgs);
 	results.block_size = block_size;
 	results.depth = depth;
+	results.errors = errors;
 	results.pattern_size = pattern_size;
 	results.stat_iteration = stat_iteration;
 	results.mode = mode;
 	results.direction = direction;
 	results.memory = memory;
 	results.pattern = pattern;
+	results.pc_duration_total = pc_duration_total;
 	results.saveResultsToFile();
 }
 
