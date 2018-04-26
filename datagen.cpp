@@ -30,8 +30,7 @@ void DataGenerator::asic()
 
 	while (i_data < pattern_size)
 	{
-		amplitude = (amplitude << 1) | ((((amplitude >> 11)^(amplitude >> 5)^(amplitude >> 3)) & 1)); // {amplitude[15:0], amplitude[11] ^ amplitude[5] ^ amplitude[3]}; so: x^12 + x^6 + x^4
-		timestamp = i_data; // TODO: Do with something better than that
+		timestamp = i_data + 1; // TODO: Do with something better than that
 		asic_data[0] = static_cast<unsigned char>(id);
 		asic_data[0] += static_cast<unsigned char>(channel << 4); // ID and half of channel
 
@@ -48,8 +47,11 @@ void DataGenerator::asic()
 		asic_data[6] = static_cast<unsigned char>(timestamp >> 20); // 2/9 of TIMESTAMP
 		asic_data[7] = static_cast<unsigned char>(timestamp >> 28); // 2/9 of TIMESTAMP
 
+		amplitude = (amplitude << 1) | ((((amplitude >> 11)^(amplitude >> 5)^(amplitude >> 3)) & 1)); // {amplitude[15:0], amplitude[11] ^ amplitude[5] ^ amplitude[3]}; so: x^12 + x^6 + x^4
+
 		for (std::size_t i = 0; i < sizeof(asic_data); i++)
 		{
+			if (check_for_errors && i >= 3) break;
 			performActionOnGeneratedData(asic_data[i], i_data + i);
 		}
 		i_data += 8;
