@@ -1,4 +1,4 @@
-module write_nonsym_fifo_blockram_64(
+module write_nonsym_fifo_blockram_2048(
 	input  wire [4:0]   okUH,
 	output wire [2:0]   okHU,
 	inout  wire [31:0]  okUHU,
