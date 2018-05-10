@@ -81,7 +81,7 @@ checkData checkDataFromPipeIn (
 	.error_count(error_count)
 );
 
-parameter N_WIRE_OR = 5;
+parameter N_WIRE_OR = 4;
 wire [65*N_WIRE_OR-1:0]  okEHx;
 okHost okHI(
 	.okUH(okUH),
