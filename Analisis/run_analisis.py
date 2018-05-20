@@ -134,11 +134,9 @@ class CounterParams(object):
 		elif head == 'u(av)':
 			return self.stdev_speed / self.divider
 
-import json
 class ResultsHandler(object):
 	def __init__(self, list_of_results_dicts, plot_metadata, target_speed, basic_properties):
 		self.list_of_results_dicts = list_of_results_dicts
-		# print (json.dumps(list_of_results_dicts, indent=2))
 		self.metadata = plot_metadata
 		self.target_speed = target_speed
 		self.basic_properties = basic_properties
@@ -150,57 +148,35 @@ class ResultsHandler(object):
 				for first_param in self.basic_properties[first_param_label]:
 					for second_param in self.basic_properties[second_param_label]:
 						results_dict = {}
-						# dict_of_results_dicts = {}
 						for third_param in self.basic_properties[third_param_label]:
-							# is_results_list_non_empty = False
 							x_param = []
 							y_param = []
 							yerr_param = []
-							# print ("Mode:", mode, "Direction:", direction, "FifoMemoryType:", first_param, "FifoDepth:", second_param, "DataPattern:", third_param)
 							for row in self.list_of_results_dicts:
-								# if ((mode == row['Mode']) and
-								# 	(mode in valid_modes) and
-								# 	(direction == row['Direction']) and
-								# 	(first_param == row[first_param_label]) and
-								# 	(second_param == row[second_param_label]) and
-								# 	(third_param == row[third_param_label])):
-								# 	x_param.append(row['PatternSize'])
-								# 	y_param.append(row['Average'])
-								# 	yerr_param.append(row['u(av)'])
 								if ((mode == row['Mode']) and
 									(mode in valid_modes) and
 									(direction == row['Direction']) and
 									(first_param == row[first_param_label]) and
-									(second_param == row[second_param_label])):
-									if (third_param == row[third_param_label]):
-										x_param.append(row['PatternSize'])
-										y_param.append(row['Average'])
-										yerr_param.append(row['u(av)'])
-								# else:
-								# 	print(mode, direction, first_param, second_param, third_param, "not accepted")
+									(second_param == row[second_param_label]) and
+									(third_param == row[third_param_label])):
+									x_param.append(row['PatternSize'])
+									y_param.append(row['Average'])
+									yerr_param.append(row['u(av)'])
 							if y_param:
 								results_dict[third_param] = {
 									'x': x_param,
 									'y': y_param,
 									'yerr': yerr_param
 								}
-							# dict_of_results_dicts.append(results_dict)
-							# if y_param:
-							# 	is_results_list_non_empty = True
-							# else:
-							# 	is_results_list_non_empty = False
 						param_dict = {
 							'mode': mode,
 							'direction': direction,
 							'first_param': first_param,
 							'second_param': second_param,
-							# 'third_param' : dict_of_results_dicts
 							'third_param': results_dict
 						}
 						if param_dict['third_param']:
 							list_of_param_dicts.append(param_dict)
-						# if is_results_list_non_empty:
-						# 	list_of_param_dicts.append(param_dict)
 		return list_of_param_dicts
 
 	def list_of_results_with_parameters(self, plotting_option, option=None):
@@ -216,23 +192,21 @@ class ResultsHandler(object):
 
 	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
-		print (json.dumps(list_of_param_dicts, indent=2))
-
-		# figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
-		# for i, results_dict in enumerate(list_of_param_dicts):
-		# 	for j, result in enumerate(results_dict['third_param']):
-		# 		x = results_dict['third_param'][result]['x']
-		# 		y = results_dict['third_param'][result]['y']
-		# 		yerr = results_dict['third_param'][result]['yerr']
-		# 		symbol = plotting_option['legend'][result] # TODO: refactor plot option!
-		# 		label = result
-		# 		figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
-		# 		if separate_third_parameters:
-		# 			figure.set_title(results_dict['first_param'], results_dict['second_param'])
-		# 			figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
-		# 	if not separate_third_parameters:
-		# 		figure.set_title(results_dict['first_param'], results_dict['second_param'])
-		# 		figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
+		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
+		for i, results_dict in enumerate(list_of_param_dicts):
+			for j, result in enumerate(results_dict['third_param']):
+				x = results_dict['third_param'][result]['x']
+				y = results_dict['third_param'][result]['y']
+				yerr = results_dict['third_param'][result]['yerr']
+				symbol = plotting_option['legend'][result] # TODO: refactor plot option!
+				label = result
+				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
+				if separate_third_parameters:
+					figure.set_title(results_dict['first_param'], results_dict['second_param'])
+					figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
+			if not separate_third_parameters:
+				figure.set_title(results_dict['first_param'], results_dict['second_param'])
+				figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
 
 
 class Figure(object):
@@ -286,6 +260,5 @@ if __name__ == "__main__":
 
 	parsed_list_of_results_dicts = results.get_refactored_list_of_results_dicts()
 	rh = ResultsHandler(parsed_list_of_results_dicts, FIGURE_METADATA, TARGET_SPEED, BASIC_PROPERTIES)
-	# for i, plot_option in enumerate(PLOTTING_OPTIONS):
-	# 	rh.save_to_figs(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
-	rh.save_to_figs(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
+	for i, plot_option in enumerate(PLOTTING_OPTIONS):
+		rh.save_to_figs(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
