@@ -1,5 +1,5 @@
 """Specify path to csv file that contains transfer results"""
-CSV_FILE = './AnalisisFromServer/test_resultVER1.csv'
+CSV_FILE = './Arch/majowka/test_resultNONDUPLEX.csv'
 
 """Specify separator in csv file"""
 SEPARATOR = ';'
@@ -50,7 +50,7 @@ BASIC_PROPERTIES = {
 	'FifoMemoryType' : ['blockram', 'distributedram', 'shiftregister'],
 	'FifoDepth': [16, 32, 64, 256, 1024],
 	'BlockSize': [16, 64, 256, 1024],
-	'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1']
+	'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1', 'asic']
 }
 
 """Combined parameters"""
@@ -65,7 +65,8 @@ PLOTTING_OPTIONS = {
 		'legend' : {
 			'counter_8bit' : 'ro',
 			'counter_32bit' : 'g*',
-			'walking_1' : 'b+'
+			'walking_1' : 'b+',
+			'asic' : 'mv'
 		}
 	},
 	'depth_pattern_memtype' : {
@@ -106,7 +107,8 @@ PLOTTING_OPTIONS = {
 		'legend': {
 			'counter_8bit': 'ro',
 			'counter_32bit': 'g*',
-			'walking_1': 'b+'
+			'walking_1': 'b+',
+			'asic' : 'mv'
 		}
 	},
 	'duplex_blocksize_pattern_memtype': {
