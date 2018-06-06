@@ -134,6 +134,7 @@ class CounterParams(object):
 		elif head == 'u(av)':
 			return self.stdev_speed / self.divider
 
+import json
 class ResultsHandler(object):
 	def __init__(self, list_of_results_dicts, plot_metadata, target_speed, basic_properties):
 		self.list_of_results_dicts = list_of_results_dicts
@@ -148,6 +149,7 @@ class ResultsHandler(object):
 				for first_param in self.basic_properties[first_param_label]:
 					for second_param in self.basic_properties[second_param_label]:
 						results_dict = {}
+						x_param = []
 						for third_param in self.basic_properties[third_param_label]:
 							x_param = []
 							y_param = []
@@ -168,11 +170,25 @@ class ResultsHandler(object):
 									'y': y_param,
 									'yerr': yerr_param
 								}
+						max_third_param = {}
+						for i, x in enumerate(x_param):
+							max_value = None
+							for param in results_dict:
+								current_value = results_dict[param]['y'][i]
+								if not max_value:
+									max_value = current_value
+									max_third_param[x] = param
+									continue
+								elif current_value > max_value:
+									max_value = current_value
+									max_third_param[x] = param
+
 						param_dict = {
 							'mode': mode,
 							'direction': direction,
 							'first_param': first_param,
 							'second_param': second_param,
+							'max_third_param' : max_third_param,
 							'third_param': results_dict
 						}
 						if param_dict['third_param']:
@@ -192,21 +208,22 @@ class ResultsHandler(object):
 
 	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
-		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
-		for i, results_dict in enumerate(list_of_param_dicts):
-			for j, result in enumerate(results_dict['third_param']):
-				x = results_dict['third_param'][result]['x']
-				y = results_dict['third_param'][result]['y']
-				yerr = results_dict['third_param'][result]['yerr']
-				symbol = plotting_option['legend'][result] # TODO: refactor plot option!
-				label = result
-				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
-				if separate_third_parameters:
-					figure.set_title(results_dict['first_param'], results_dict['second_param'])
-					figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
-			if not separate_third_parameters:
-				figure.set_title(results_dict['first_param'], results_dict['second_param'])
-				figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
+		print(json.dumps(list_of_param_dicts, indent=2))
+		# figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
+		# for i, results_dict in enumerate(list_of_param_dicts):
+		# 	for j, result in enumerate(results_dict['third_param']):
+		# 		x = results_dict['third_param'][result]['x']
+		# 		y = results_dict['third_param'][result]['y']
+		# 		yerr = results_dict['third_param'][result]['yerr']
+		# 		symbol = plotting_option['legend'][result] # TODO: refactor plot option!
+		# 		label = result
+		# 		figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
+		# 		if separate_third_parameters:
+		# 			figure.set_title(results_dict['first_param'], results_dict['second_param'])
+		# 			figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
+		# 	if not separate_third_parameters:
+		# 		figure.set_title(results_dict['first_param'], results_dict['second_param'])
+		# 		figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
 
 
 class Figure(object):
