@@ -141,6 +141,7 @@ class ResultsHandler(object):
 		self.metadata = plot_metadata
 		self.target_speed = target_speed
 		self.basic_properties = basic_properties
+		self.x_param = []
 
 	def __iterate_using_params(self, first_param_label, second_param_label, third_param_label, valid_modes):
 		list_of_param_dicts = []
@@ -170,18 +171,19 @@ class ResultsHandler(object):
 									'y': y_param,
 									'yerr': yerr_param
 								}
-						max_third_param = {}
+								self.x_param = x_param
+						max_third_param = []
 						for i, x in enumerate(x_param):
 							max_value = None
 							for param in results_dict:
 								current_value = results_dict[param]['y'][i]
 								if not max_value:
 									max_value = current_value
-									max_third_param[x] = param
+									max_third_param.append(param)
 									continue
 								elif current_value > max_value:
 									max_value = current_value
-									max_third_param[x] = param
+									max_third_param[i] = param
 
 						param_dict = {
 							'mode': mode,
@@ -208,7 +210,31 @@ class ResultsHandler(object):
 
 	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
-		print(json.dumps(list_of_param_dicts, indent=2))
+		# print(json.dumps(list_of_param_dicts, indent=2))
+		first_row = 'Pattern size '
+		# for param_dict in list_of_param_dicts:
+		# 	first_row += (' & ' + str(param_dict['second_param']))
+		
+		rows = []
+		rows.append(first_row)
+		for size in self.x_param:
+			row = 'textbf{{{}}}'.format(size)
+			rows.append(row)
+
+		print(rows, '\n')
+		for param_dict in list_of_param_dicts:
+			rows[0] += (' & ' + str(param_dict['second_param']))
+			print(rows[0])
+			for i, x in enumerate(self.x_param):
+				# print(i)
+				try:
+					row = ' & ' + param_dict['max_third_param'][i]# list_of_param_dicts[param_dict]['max_third_param'][i]
+					rows[i+1] += row
+					print (rows[i+1])
+				except IndexError:
+					break
+				
+		# print(rows, '\n')
 		# figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
 		# for i, results_dict in enumerate(list_of_param_dicts):
 		# 	for j, result in enumerate(results_dict['third_param']):
@@ -277,5 +303,6 @@ if __name__ == "__main__":
 
 	parsed_list_of_results_dicts = results.get_refactored_list_of_results_dicts()
 	rh = ResultsHandler(parsed_list_of_results_dicts, FIGURE_METADATA, TARGET_SPEED, BASIC_PROPERTIES)
-	for i, plot_option in enumerate(PLOTTING_OPTIONS):
-		rh.save_to_figs(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
+	# for i, plot_option in enumerate(PLOTTING_OPTIONS):
+	# 	rh.save_to_figs(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
+	rh.save_to_figs(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
