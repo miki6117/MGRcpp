@@ -134,7 +134,7 @@ class CounterParams(object):
 		elif head == 'u(av)':
 			return self.stdev_speed / self.divider
 
-import json
+# import json
 class ResultsHandler(object):
 	def __init__(self, list_of_results_dicts, plot_metadata, target_speed, basic_properties):
 		self.list_of_results_dicts = list_of_results_dicts
@@ -142,6 +142,14 @@ class ResultsHandler(object):
 		self.target_speed = target_speed
 		self.basic_properties = basic_properties
 		self.x_param = []
+		self.chapter_file_name = None
+		self.fig_folder = None
+		self.generate_results_chapter = False
+
+	def enable_results_chapter_generation(self, results_chapter_file_name, fig_folder):
+		self.generate_results_chapter = True
+		self.chapter_file_name = results_chapter_file_name
+		self.fig_folder = fig_folder
 
 	def __iterate_using_params(self, first_param_label, second_param_label, third_param_label, valid_modes):
 		list_of_param_dicts = []
@@ -208,48 +216,142 @@ class ResultsHandler(object):
 														  valid_modes)
 		return list_of_param_dicts
 
+	def __append_string_to_chapter_file(self, string_to_append):
+		with open(self.chapter_file_name, "a") as fd:
+			fd.write(string_to_append)
+
+	def __generate_first_column_for_tab(self, rows):
+		first_row = 'Pattern size '
+		rows.append(first_row)
+		for size in self.x_param:
+			row = 'textbf{{{}}}'.format(size)
+			rows.append(row)
+
+	def __append_next_column_to_tab(self, rows, param_dict):
+		rows[0] += (' & ' + str(param_dict['second_param']))
+		for i, x in enumerate(self.x_param):
+			try:
+				row = ' & ' + param_dict['max_third_param'][i]
+				rows[i+1] += row
+			except IndexError:
+				break
+
+	def __organize_figures(self, fig_names):
+		fig_init = "\\includegraphics[width=0.5\\textwidth]{{{}}}"
+		subfloat = '\\subfloat[]{{{}}}'
+		is_new_line = False
+		for fig_name in fig_names:
+			if not is_new_line:
+				fig_declaration = '\\begin{figure}[H]\n'
+				fig_declaration += '\t' + subfloat.format(fig_init.format(self.fig_folder + fig_name)) 
+				fig_declaration += "\n\t\\quad\n" 
+				is_new_line = True
+			else:
+				fig_declaration += '\t' + subfloat.format(fig_init.format(self.fig_folder + fig_name,))
+				fig_declaration += '\n\\end{figure}\n\n'
+				self.__append_string_to_chapter_file(fig_declaration)
+				is_new_line = False
+
+	def __add_subsection(self, subsection_name):
+		subsection_def = '\\subsection{{{}}}'.format(subsection_name)
+		self.__append_string_to_chapter_file(subsection_def)
+
+	def __add_subsubsection(self, subsubsection_name):
+		subsubsection_def = '\t\\subsection{{{}}}'.format(subsubsection_name)
+		self.__append_string_to_chapter_file(subsubsection_def)
+
+	def __add_tab(self, rows): # TODO: tabbing
+		tab_label = 'xyz'
+		begin_with_tab_label = '\\begin{center}\n\t\begin{tab}\n\t\t{}\n\t\\end{tab}\n'.format(tab_label)
+		begin_tabular_with_specified_no_of_columns = '\t\\begin{tabular}{l{}}\n'.format(len(rows.split('&')))
+		self.__append_string_to_chapter_file(begin_with_tab_label)
+		self.__append_string_to_chapter_file(begin_tabular_with_specified_no_of_columns)
+		for row in rows:
+			self.__append_string_to_chapter_file(row)
+		ending = '\t\\end{tabular}\n\\end{center}'
+		self.__append_string_to_chapter_file(ending)
+
+	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
+		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
+		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
+		fig_names = []
+
+		if self.generate_results_chapter:
+			rows = []
+			self.__generate_first_column_for_tab(rows)
+			self.__add_subsection(plotting_option['subsection'])
+		
+		previous_mode = None
+		for i, param_dict in enumerate(list_of_param_dicts):
+			current_mode = param_dict['mode']
+			if not previous_mode:
+				previous_mode = current_mode
+				self.__add_subsubsection(param_dict['mode'])
+			
+			for j, result in enumerate(param_dict['third_param']):
+				x = param_dict['third_param'][result]['x']
+				y = param_dict['third_param'][result]['y']
+				yerr = param_dict['third_param'][result]['yerr']
+				symbol = plotting_option['legend'][result]
+				label = result
+				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
+				if separate_third_parameters:
+					figure.set_title(param_dict['first_param'], param_dict['second_param'])
+					fig_name = figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), param_dict['mode'], param_dict['direction'])
+					fig_names.append(fig_name)
+			if not separate_third_parameters:
+				figure.set_title(param_dict['first_param'], param_dict['second_param'])
+				fig_name = figure.save_fig(str(plot_index) + '_' + str(i), param_dict['mode'], param_dict['direction'])
+				fig_names.append(fig_name)
+
+
+			if self.generate_results_chapter:
+				if previous_mode != current_mode:
+					self.__organize_figures(fig_names)
+					fig_names = []
+					self.__add_tab(rows)
+					self.__add_subsubsection(param_dict['mode'])
+					previous_mode = current_mode
+				self.__append_next_column_to_tab(rows, param_dict)
+			
+
 	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
-		# print(json.dumps(list_of_param_dicts, indent=2))
-		first_row = 'Pattern size '
-		# for param_dict in list_of_param_dicts:
-		# 	first_row += (' & ' + str(param_dict['second_param']))
 		
+
+		first_row = 'Pattern size '
 		rows = []
 		rows.append(first_row)
 		for size in self.x_param:
 			row = 'textbf{{{}}}'.format(size)
 			rows.append(row)
 
-		print(rows, '\n')
 		for param_dict in list_of_param_dicts:
 			rows[0] += (' & ' + str(param_dict['second_param']))
 			print(rows[0])
 			for i, x in enumerate(self.x_param):
-				# print(i)
 				try:
-					row = ' & ' + param_dict['max_third_param'][i]# list_of_param_dicts[param_dict]['max_third_param'][i]
+					row = ' & ' + param_dict['max_third_param'][i]
 					rows[i+1] += row
 					print (rows[i+1])
 				except IndexError:
 					break
 				
-		# print(rows, '\n')
-		# figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
-		# for i, results_dict in enumerate(list_of_param_dicts):
-		# 	for j, result in enumerate(results_dict['third_param']):
-		# 		x = results_dict['third_param'][result]['x']
-		# 		y = results_dict['third_param'][result]['y']
-		# 		yerr = results_dict['third_param'][result]['yerr']
-		# 		symbol = plotting_option['legend'][result] # TODO: refactor plot option!
-		# 		label = result
-		# 		figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
-		# 		if separate_third_parameters:
-		# 			figure.set_title(results_dict['first_param'], results_dict['second_param'])
-		# 			figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
-		# 	if not separate_third_parameters:
-		# 		figure.set_title(results_dict['first_param'], results_dict['second_param'])
-		# 		figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
+		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
+		for i, results_dict in enumerate(list_of_param_dicts):
+			for j, result in enumerate(results_dict['third_param']):
+				x = results_dict['third_param'][result]['x']
+				y = results_dict['third_param'][result]['y']
+				yerr = results_dict['third_param'][result]['yerr']
+				symbol = plotting_option['legend'][result] # TODO: refactor plot option!
+				label = result
+				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
+				if separate_third_parameters:
+					figure.set_title(results_dict['first_param'], results_dict['second_param'])
+					figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
+			if not separate_third_parameters:
+				figure.set_title(results_dict['first_param'], results_dict['second_param'])
+				figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
 
 
 class Figure(object):
@@ -290,10 +392,13 @@ class Figure(object):
 		self.__set_metadata()
 		self.__ax.legend(loc='upper left')
 		if args:
-			self.__fig.savefig(self.__fig_name.format(*args))
+			fig_name = self.__fig_name.format(*args)
+			self.__fig.savefig(fig_name)
 		else:
-			self.__fig.savefig(self.__fig_name)
+			fig_name = self.__fig_name
+			self.__fig.savefig(fig_name)
 		self.__ax.clear()
+		return fig_name
 
 
 if __name__ == "__main__":
@@ -302,7 +407,11 @@ if __name__ == "__main__":
 		results.check_errors()
 
 	parsed_list_of_results_dicts = results.get_refactored_list_of_results_dicts()
-	rh = ResultsHandler(parsed_list_of_results_dicts, FIGURE_METADATA, TARGET_SPEED, BASIC_PROPERTIES)
+	rh = ResultsHandler(parsed_list_of_results_dicts, FIGURE_METADATA, TARGET_SPEED, BASIC_PROPERTIES) # TODO: generate results chapter condition in class declaration
+	if GENERATE_RESULTS_CHAPTER:
+		rh.enable_results_chapter_generation(RESULTS_CHAPTER_FILE_NAME, FIG_FOLDER, MODES_DICT)
 	# for i, plot_option in enumerate(PLOTTING_OPTIONS):
 	# 	rh.save_to_figs(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
 	rh.save_to_figs(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
+
+# TODO: Add direction to figures' title

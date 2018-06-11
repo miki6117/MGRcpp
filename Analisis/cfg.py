@@ -16,6 +16,11 @@ TARGET_SPEED = 'AV'
 """Each combination of parameters on separated chart? (default: no)"""
 PARAMETERS_SEPARATED = False
 
+"""Generate LaTeX results chapter? (default: no)"""
+GENERATE_RESULTS_CHAPTER = True
+RESULTS_CHAPTER_FILE_NAME = 'results.tex'
+FIG_FOLDER = 'src/results/' # Where figures will be sotred in TeX project?
+
 
 """Try not to modify this section on your own (except you know exactely what are you doing)!"""
 
@@ -53,10 +58,18 @@ BASIC_PROPERTIES = {
 	'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1', 'asic']
 }
 
+"""Plotting options mapped to proper names"""
+MODES_DICT = {
+	'memtype_depth_pattern': 'Patterns',
+	'depth_pattern_memtype': 'Memory types',
+	'pattern_memtype_depth': 'Depths'
+}
+
 """Combined parameters"""
 PLOTTING_OPTIONS = {
 	'memtype_depth_pattern' : {
 		'title' : 'Fifo memory type: {}. Depth = {}',
+		'subsection': 'Patterns',
 		'savefig' : '{}_{}_{}_patterns.png',
 		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'FifoMemoryType',
@@ -71,6 +84,7 @@ PLOTTING_OPTIONS = {
 	},
 	'depth_pattern_memtype' : {
 		'title' : 'Fifo depth: {}. Pattern type = {}',
+		'subsection': 'Memory types',
 		'savefig' : '{}_{}_{}_memory_types.png',
 		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'FifoDepth',
@@ -84,6 +98,7 @@ PLOTTING_OPTIONS = {
 	},
 	'pattern_memtype_depth' : {
 		'title' : 'Pattern type: {}. Fifo memory type: {}',
+		'subsection': 'Depths',
 		'savefig' : '{}_{}_{}_depths.png',
 		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'DataPattern',
