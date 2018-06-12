@@ -224,7 +224,7 @@ class ResultsHandler(object):
 		first_row = 'Pattern size '
 		rows.append(first_row)
 		for size in self.x_param:
-			row = 'textbf{{{}}}'.format(size)
+			row = '\\textbf{{{}}}'.format(size)
 			rows.append(row)
 
 	def __append_next_column_to_tab(self, rows, param_dict):
@@ -253,22 +253,25 @@ class ResultsHandler(object):
 				is_new_line = False
 
 	def __add_subsection(self, subsection_name):
-		subsection_def = '\\subsection{{{}}}'.format(subsection_name)
+		subsection_def = '\\subsection{{{}}}\n'.format(subsection_name)
 		self.__append_string_to_chapter_file(subsection_def)
 
 	def __add_subsubsection(self, subsubsection_name):
-		subsubsection_def = '\t\\subsection{{{}}}'.format(subsubsection_name)
+		subsubsection_def = '\t\\subsection{{{}}}\n'.format(subsubsection_name)
 		self.__append_string_to_chapter_file(subsubsection_def)
 
 	def __add_tab(self, rows): # TODO: tabbing
+		col_numb = len(rows[0].split('&')) - 1
+		# indend = '\t\t' 
+		col_separator = ' | l' 
 		tab_label = 'xyz'
-		begin_with_tab_label = '\\begin{center}\n\t\begin{tab}\n\t\t{}\n\t\\end{tab}\n'.format(tab_label)
-		begin_tabular_with_specified_no_of_columns = '\t\\begin{tabular}{l{}}\n'.format(len(rows.split('&')))
+		begin_with_tab_label = "\\begin{{center}}\n\t\\begin{{tab}}\n\t\t{}\n\t\\end{{tab}}\n".format(tab_label)
+		begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{l{}}}\n".format(col_separator * col_numb)
 		self.__append_string_to_chapter_file(begin_with_tab_label)
 		self.__append_string_to_chapter_file(begin_tabular_with_specified_no_of_columns)
 		for row in rows:
-			self.__append_string_to_chapter_file(row)
-		ending = '\t\\end{tabular}\n\\end{center}'
+			self.__append_string_to_chapter_file(row + '\\\\\n')
+		ending = '\n\t\\end{tabular}\n\\end{center}\n'
 		self.__append_string_to_chapter_file(ending)
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
@@ -409,9 +412,10 @@ if __name__ == "__main__":
 	parsed_list_of_results_dicts = results.get_refactored_list_of_results_dicts()
 	rh = ResultsHandler(parsed_list_of_results_dicts, FIGURE_METADATA, TARGET_SPEED, BASIC_PROPERTIES) # TODO: generate results chapter condition in class declaration
 	if GENERATE_RESULTS_CHAPTER:
-		rh.enable_results_chapter_generation(RESULTS_CHAPTER_FILE_NAME, FIG_FOLDER, MODES_DICT)
+		rh.enable_results_chapter_generation(RESULTS_CHAPTER_FILE_NAME, FIG_FOLDER)
 	# for i, plot_option in enumerate(PLOTTING_OPTIONS):
 	# 	rh.save_to_figs(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
-	rh.save_to_figs(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
+	# rh.save_to_figs(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
+	rh.handle_results(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
 
 # TODO: Add direction to figures' title
