@@ -181,7 +181,7 @@ class ResultsHandler(object):
 								}
 								self.x_param = x_param
 						max_third_param = []
-						for i, x in enumerate(x_param):
+						for i, x in enumerate(self.x_param):
 							max_value = None
 							for param in results_dict:
 								current_value = results_dict[param]['y'][i]
