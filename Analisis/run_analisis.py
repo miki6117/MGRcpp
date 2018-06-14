@@ -312,11 +312,11 @@ class ResultsHandler(object):
 				label = result
 				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
 				if separate_third_parameters:
-					figure.set_title(param_dict['first_param'], param_dict['second_param'])
+					figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
 					fig_name = figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), param_dict['mode'], param_dict['direction'])
 					fig_names.append(fig_name)
 			if not separate_third_parameters:
-				figure.set_title(param_dict['first_param'], param_dict['second_param'])
+				figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
 				fig_name = figure.save_fig(str(plot_index) + '_' + str(i), param_dict['mode'], param_dict['direction'])
 				fig_names.append(fig_name)
 

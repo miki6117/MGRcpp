@@ -68,7 +68,7 @@ MODES_DICT = {
 """Combined parameters"""
 PLOTTING_OPTIONS = {
 	'memtype_depth_pattern' : {
-		'title' : 'Fifo memory type: {}. Depth = {}',
+		'title' : 'Direction: {}. Fifo memory type: {}. Depth = {}',
 		'subsection': 'Patterns',
 		'savefig' : '{}_{}_{}_patterns.png',
 		'valid_modes': ['32bit', 'nonsym'],
@@ -83,7 +83,7 @@ PLOTTING_OPTIONS = {
 		}
 	},
 	'depth_pattern_memtype' : {
-		'title' : 'Fifo depth: {}. Pattern type = {}',
+		'title' : 'Direction: {}. Fifo depth: {}. Pattern type = {}',
 		'subsection': 'Memory types',
 		'savefig' : '{}_{}_{}_memory_types.png',
 		'valid_modes': ['32bit', 'nonsym'],
@@ -97,7 +97,7 @@ PLOTTING_OPTIONS = {
 		}
 	},
 	'pattern_memtype_depth' : {
-		'title' : 'Pattern type: {}. Fifo memory type: {}',
+		'title' : 'Direction: {}. Pattern type: {}. Fifo memory type: {}',
 		'subsection': 'Depths',
 		'savefig' : '{}_{}_{}_depths.png',
 		'valid_modes': ['32bit', 'nonsym'],
