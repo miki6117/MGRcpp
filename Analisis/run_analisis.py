@@ -294,17 +294,21 @@ class ResultsHandler(object):
 			self.__add_subsection(plotting_option['subsection'])
 		
 		# previous_mode = None
-		next_mode = None
+		# next_mode = None
 		tab_label = None
+		next_param_dict = None
+		is_last_param_dict = False
+		tabs_to_append = {}
+		read_list = []
+		write_list = []
 		for i, param_dict in enumerate(list_of_param_dicts):
 			current_mode = param_dict['mode']
 			try:
-				next_mode = list_of_param_dicts[i+1]['mode']
+				# next_mode = list_of_param_dicts[i+1]['mode']
+				next_param_dict = list_of_param_dicts[i+1]
 			except IndexError:
-				pass
-			# if not previous_mode:
-			# 	previous_mode = current_mode
-			# 	self.__add_subsubsection(param_dict['mode'])
+				is_last_param_dict = True
+			
 			if not tab_label:
 				self.__add_subsubsection(param_dict['mode'])
 
@@ -330,27 +334,47 @@ class ResultsHandler(object):
 					self.__append_next_column_to_tab(rows_read, param_dict)
 				elif param_dict['direction'] == 'write':
 					self.__append_next_column_to_tab(rows_write, param_dict)
-				tab_label = str(param_dict['mode'] + ' {} ' + param_dict['first_param'])
+				# tab_label = str(param_dict['mode'] + ' {} ' + param_dict['first_param'])
+				tab_label = str(param_dict['mode'] + ' {} {}')
 
-				# if (previous_mode != current_mode) or (i == len(list_of_param_dicts)-1):
-				if (next_mode != current_mode) or (i == len(list_of_param_dicts)-1):
-					self.__organize_figures(fig_names)
-					fig_names = []
-					self.__add_tab(rows_read, tab_label.format("read"))
-					self.__add_tab(rows_write, tab_label.format("write"))
+				if next_param_dict['first_param'] != param_dict['first_param']:
+					if param_dict['direction'] == 'read':
+						# read_tabs[param_dict['first_param']] = rows_read
+						read_list.append({param_dict['first_param'] : rows_read})
+					elif param_dict['direction'] == 'write':
+						# write_tabs[param_dict['first_param']] = rows_write
+						write_list.append({param_dict['first_param'] : rows_write})
 					rows_read = []
 					rows_write = []
 					self.__generate_first_column_for_tab(rows_write)
 					self.__generate_first_column_for_tab(rows_read)
-					# previous_mode = current_mode
-					if i != len(list_of_param_dicts)-1:
-						self.__add_subsubsection(list_of_param_dicts[i+1]['mode'])
-				# else:
-					# if param_dict['direction'] == 'read':
-					# 	self.__append_next_column_to_tab(rows_read, param_dict)
-					# elif param_dict['direction'] == 'write':
-					# 	self.__append_next_column_to_tab(rows_write, param_dict)
-					# tab_label = str(param_dict['mode'] + ' ' + param_dict['direction'] + ' ' + param_dict['first_param'])
+
+
+				# if (next_mode != current_mode) or (i == len(list_of_param_dicts)-1):
+				if (next_param_dict['mode'] != current_mode) or is_last_param_dict:
+					self.__organize_figures(fig_names)
+					fig_names = []
+					if not read_list or not write_list:
+						self.__add_tab(rows_read, tab_label.format("read", param_dict['first_param']))
+						self.__add_tab(rows_write, tab_label.format("write", param_dict['first_param']))					
+					for write in write_list:
+						for w in write:
+							self.__add_tab(write[w], tab_label.format("write", w))
+					for read in read_list:
+						for r in read:
+							self.__add_tab(read[r], tab_label.format("read", r))
+					# self.__add_tab(rows_read, tab_label.format("read"))
+					# self.__add_tab(rows_write, tab_label.format("write"))
+					rows_read = []
+					rows_write = []
+					self.__generate_first_column_for_tab(rows_write)
+					self.__generate_first_column_for_tab(rows_read)
+					read_list = []
+					write_list = []
+					if not is_last_param_dict:
+						self.__add_subsubsection(next_param_dict['mode'])
+					else:
+						is_last_param_dict = False
 
 	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
