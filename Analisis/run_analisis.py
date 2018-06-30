@@ -1,3 +1,4 @@
+# TODO: Change name to run_analysis!!
 from cfg import * 
 import csv
 import math
@@ -180,25 +181,36 @@ class ResultsHandler(object):
 									'yerr': yerr_param
 								}
 								self.x_param = x_param
-						max_third_param = []
+						max_third_param_list = []
 						for i, x in enumerate(self.x_param):
 							max_value = None
 							for param in results_dict:
 								current_value = results_dict[param]['y'][i]
 								if not max_value:
 									max_value = current_value
-									max_third_param.append(param)
+									max_third_param_list.append({param : "{0:.3f}".format(max_value)})
 									continue
 								elif current_value > max_value:
 									max_value = current_value
-									max_third_param[i] = param
+									max_third_param_list[i] = {param : "{0:.3f}".format(max_value)}
+
+						most_frequent_third_param_dict = {}
+						for mtp in max_third_param_list:
+							for m in mtp:
+								if not m in most_frequent_third_param_dict:
+									most_frequent_third_param_dict[m] = 0
+								else:
+									most_frequent_third_param_dict[m] += 1
+						# print(most_frequent_third_param_dict)
+						most_frequent_third_param = [par for par in most_frequent_third_param_dict if most_frequent_third_param_dict[par] == max(most_frequent_third_param_dict.values())]
 
 						param_dict = {
 							'mode': mode,
 							'direction': direction,
 							'first_param': first_param,
 							'second_param': second_param,
-							'max_third_param' : max_third_param,
+							'max_third_param' : max_third_param_list,
+							'most_frequent_third_param' : most_frequent_third_param,
 							'third_param': results_dict
 						}
 						if param_dict['third_param']:
@@ -222,24 +234,38 @@ class ResultsHandler(object):
 
 	def __generate_first_column_for_tab(self, rows):
 		first_row = '\\textbf{Pattern size [B]} '
+		last_row = '\\textbf{Max} ' # TODO: Rename
 		rows.append(first_row)
 		for size in self.x_param:
 			row = '\\textbf{{{}}}'.format(size)
 			rows.append(row)
+		rows.append(last_row)
+
+	def __refactor_string_to_latex_standard(self, string_to_refactor):
+		if '_' in string_to_refactor:
+			string_to_refactor_list = list(string_to_refactor)
+			string_to_refactor_list[string_to_refactor_list.index('_')] = '\_'
+			string_to_refactor = ''.join(string_to_refactor_list)
+		return string_to_refactor
+
 
 	def __append_next_column_to_tab(self, rows, param_dict):
 		rows[0] += (' & ' + '\\textbf{{{}}}'.format(str(param_dict['second_param'])))
 		for i, x in enumerate(self.x_param):
 			try:
-				max_third_param = param_dict['max_third_param'][i]
-				if '_' in max_third_param:
-					max_third_param_list = list(max_third_param)
-					max_third_param_list[max_third_param_list.index('_')] = '\_'
-					max_third_param = ''.join(max_third_param_list)
+				max_third_param = [param for param in param_dict['max_third_param'][i]][0]
+				max_third_param = self.__refactor_string_to_latex_standard(max_third_param)
+				# if '_' in max_third_param:
+				# 	max_third_param_list = list(max_third_param)
+				# 	max_third_param_list[max_third_param_list.index('_')] = '\_'
+				# 	max_third_param = ''.join(max_third_param_list)
 				row = ' & ' + max_third_param
 				rows[i+1] += row
 			except IndexError:
 				break
+		most_frequent_third_params = ', '.join(param_dict['most_frequent_third_param'])
+		most_frequent_third_params = self.__refactor_string_to_latex_standard(most_frequent_third_params)
+		rows[len(rows) - 1] += ' & ' + most_frequent_third_params
 
 	def __organize_figures(self, fig_names):
 		fig_init = "\\includegraphics[width=0.5\\textwidth]{{{}}}"
@@ -274,7 +300,7 @@ class ResultsHandler(object):
 		self.__append_string_to_chapter_file(begin_with_tab_label)
 		self.__append_string_to_chapter_file(begin_tabular_with_specified_no_of_columns)
 		for i, row in enumerate(rows):
-			if i == 0:
+			if i == 0 or i == len(rows) - 2:
 				self.__append_string_to_chapter_file(row + '\\\\ \\hline\n')
 			else:
 				self.__append_string_to_chapter_file(row + '\\\\\n')
@@ -283,6 +309,8 @@ class ResultsHandler(object):
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
+		# print(json.dumps(list_of_param_dicts, indent=2))
+		# '''
 		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
 		fig_names = []
 
@@ -375,6 +403,7 @@ class ResultsHandler(object):
 						self.__add_subsubsection(next_param_dict['mode'])
 					else:
 						is_last_param_dict = False
+		# '''
 
 	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
