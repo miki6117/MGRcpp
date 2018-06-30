@@ -242,10 +242,11 @@ class ResultsHandler(object):
 		rows.append(last_row)
 
 	def __refactor_string_to_latex_standard(self, string_to_refactor):
-		if '_' in string_to_refactor:
-			string_to_refactor_list = list(string_to_refactor)
-			string_to_refactor_list[string_to_refactor_list.index('_')] = '\_'
-			string_to_refactor = ''.join(string_to_refactor_list)
+		string_to_refactor_list = list(string_to_refactor)
+		for i, char in enumerate(string_to_refactor_list):
+			if char == '_':
+				string_to_refactor_list[i] = '\_'
+		string_to_refactor = ''.join(string_to_refactor_list)
 		return string_to_refactor
 
 
@@ -293,10 +294,13 @@ class ResultsHandler(object):
 
 	def __add_tab(self, rows, tab_label): # TODO: tabbing
 		col_numb = len(rows[0].split('&')) - 1
+		width_ratio = "{0:.2f}".format(1 / (col_numb+1))
 		# indend = '\t\t' 
-		col_separator = ' | c' 
+		# col_separator = ' | c' 
+		col_separator = ' | p{{{}\\textwidth-2\\tabcolsep}}'.format(width_ratio) 
 		begin_with_tab_label = "\\begin{{center}}\n\t\\begin{{tab}}\n\t\t{}\n\t\\end{{tab}}\n".format(tab_label)
-		begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{l{}}}\n".format(col_separator * col_numb)
+		# begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{l{}}}\n".format(col_separator * col_numb)
+		begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{p{{{}\\textwidth-2\\tabcolsep}}{}}}\n".format(width_ratio, col_separator * col_numb)
 		self.__append_string_to_chapter_file(begin_with_tab_label)
 		self.__append_string_to_chapter_file(begin_tabular_with_specified_no_of_columns)
 		for i, row in enumerate(rows):
