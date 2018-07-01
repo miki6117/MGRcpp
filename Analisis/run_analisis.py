@@ -268,19 +268,22 @@ class ResultsHandler(object):
 		rows[len(rows) - 1] += ' & ' + most_frequent_third_params
 
 	def __organize_figures(self, fig_names_list):
-		fig_init = "\\includegraphics[width=0.5\\textwidth]{{{}}}"
-		subfloat = '\\subfloat[{}]{{{}}}'
+		fig_init = "\\includegraphics[width=\\textwidth]{{{}}}"
+		minipage = '\\begin{{minipage}}{{0.5\\textwidth}}\n\t\\centering\n\t{}\n\t\\caption{{{}}}\n\\end{{minipage}}%\n'
+		# subfloat = '\\subfloat[{}]{{{}}}'
 		is_new_line = False
 		for fig_name_dict in fig_names_list:
 			fig_name = ''.join(fig_name_dict.keys())
 			fig_title = ''.join(fig_name_dict.values())
 			if not is_new_line:
-				fig_declaration = '\\begin{figure}[H]\n'
-				fig_declaration += '\t' + subfloat.format(fig_title, fig_init.format(self.fig_folder + fig_name)) 
-				fig_declaration += "\n\t\\quad\n" 
+				fig_declaration = '\\begin{figure}[H]\n\\centering\n'
+				# fig_declaration += '\t' + subfloat.format(fig_title, fig_init.format(self.fig_folder + fig_name)) 
+				fig_declaration += minipage.format(fig_init.format(self.fig_folder + fig_name), fig_title) 
+				# fig_declaration += "\n\t\\quad\n" 
 				is_new_line = True
 			else:
-				fig_declaration += '\t' + subfloat.format(fig_title, fig_init.format(self.fig_folder + fig_name))
+				# fig_declaration += '\t' + subfloat.format(fig_title, fig_init.format(self.fig_folder + fig_name))
+				fig_declaration += minipage[:-2].format(fig_init.format(self.fig_folder + fig_name), fig_title)
 				fig_declaration += '\n\\end{figure}\n\n'
 				self.__append_string_to_chapter_file(fig_declaration)
 				is_new_line = False
@@ -408,43 +411,43 @@ class ResultsHandler(object):
 						is_last_param_dict = False
 		# '''
 
-	def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
-		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
+	# def save_to_figs(self, plotting_option, plot_index, separate_third_parameters=False):
+	# 	list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
 		
 
-		first_row = 'Pattern size '
-		rows = []
-		rows.append(first_row)
-		for size in self.x_param:
-			row = 'textbf{{{}}}'.format(size)
-			rows.append(row)
+	# 	first_row = 'Pattern size '
+	# 	rows = []
+	# 	rows.append(first_row)
+	# 	for size in self.x_param:
+	# 		row = 'textbf{{{}}}'.format(size)
+	# 		rows.append(row)
 
-		for param_dict in list_of_param_dicts:
-			rows[0] += (' & ' + str(param_dict['second_param']))
-			print(rows[0])
-			for i, x in enumerate(self.x_param):
-				try:
-					row = ' & ' + param_dict['max_third_param'][i]
-					rows[i+1] += row
-					print (rows[i+1])
-				except IndexError:
-					break
+	# 	for param_dict in list_of_param_dicts:
+	# 		rows[0] += (' & ' + str(param_dict['second_param']))
+	# 		print(rows[0])
+	# 		for i, x in enumerate(self.x_param):
+	# 			try:
+	# 				row = ' & ' + param_dict['max_third_param'][i]
+	# 				rows[i+1] += row
+	# 				print (rows[i+1])
+	# 			except IndexError:
+	# 				break
 				
-		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
-		for i, results_dict in enumerate(list_of_param_dicts):
-			for j, result in enumerate(results_dict['third_param']):
-				x = results_dict['third_param'][result]['x']
-				y = results_dict['third_param'][result]['y']
-				yerr = results_dict['third_param'][result]['yerr']
-				symbol = plotting_option['legend'][result] # TODO: refactor plot option!
-				label = result
-				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
-				if separate_third_parameters:
-					figure.set_title(results_dict['first_param'], results_dict['second_param'])
-					figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
-			if not separate_third_parameters:
-				figure.set_title(results_dict['first_param'], results_dict['second_param'])
-				figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
+	# 	figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
+	# 	for i, results_dict in enumerate(list_of_param_dicts):
+	# 		for j, result in enumerate(results_dict['third_param']):
+	# 			x = results_dict['third_param'][result]['x']
+	# 			y = results_dict['third_param'][result]['y']
+	# 			yerr = results_dict['third_param'][result]['yerr']
+	# 			symbol = plotting_option['legend'][result] # TODO: refactor plot option!
+	# 			label = result
+	# 			figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
+	# 			if separate_third_parameters:
+	# 				figure.set_title(results_dict['first_param'], results_dict['second_param'])
+	# 				figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), results_dict['mode'], results_dict['direction'])
+	# 		if not separate_third_parameters:
+	# 			figure.set_title(results_dict['first_param'], results_dict['second_param'])
+	# 			figure.save_fig(str(plot_index) + '_' + str(i), results_dict['mode'], results_dict['direction'])
 
 
 class Figure(object):
