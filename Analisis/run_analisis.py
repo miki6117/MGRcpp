@@ -267,18 +267,20 @@ class ResultsHandler(object):
 		most_frequent_third_params = self.__refactor_string_to_latex_standard(most_frequent_third_params)
 		rows[len(rows) - 1] += ' & ' + most_frequent_third_params
 
-	def __organize_figures(self, fig_names):
+	def __organize_figures(self, fig_names_list):
 		fig_init = "\\includegraphics[width=0.5\\textwidth]{{{}}}"
-		subfloat = '\\subfloat[]{{{}}}'
+		subfloat = '\\subfloat[{}]{{{}}}'
 		is_new_line = False
-		for fig_name in fig_names:
+		for fig_name_dict in fig_names_list:
+			fig_name = ''.join(fig_name_dict.keys())
+			fig_title = ''.join(fig_name_dict.values())
 			if not is_new_line:
 				fig_declaration = '\\begin{figure}[H]\n'
-				fig_declaration += '\t' + subfloat.format(fig_init.format(self.fig_folder + fig_name)) 
+				fig_declaration += '\t' + subfloat.format(fig_title, fig_init.format(self.fig_folder + fig_name)) 
 				fig_declaration += "\n\t\\quad\n" 
 				is_new_line = True
 			else:
-				fig_declaration += '\t' + subfloat.format(fig_init.format(self.fig_folder + fig_name,))
+				fig_declaration += '\t' + subfloat.format(fig_title, fig_init.format(self.fig_folder + fig_name))
 				fig_declaration += '\n\\end{figure}\n\n'
 				self.__append_string_to_chapter_file(fig_declaration)
 				is_new_line = False
@@ -349,13 +351,13 @@ class ResultsHandler(object):
 				label = result
 				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
 				if separate_third_parameters:
-					figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
+					fig_title = figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
 					fig_name = figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), param_dict['mode'], param_dict['direction'])
-					fig_names.append(fig_name)
+					fig_names.append({fig_name : fig_title})
 			if not separate_third_parameters:
-				figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
+				fig_title = figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
 				fig_name = figure.save_fig(str(plot_index) + '_' + str(i), param_dict['mode'], param_dict['direction'])
-				fig_names.append(fig_name)
+				fig_names.append({fig_name : fig_title})
 
 
 			if self.generate_results_chapter:
@@ -475,9 +477,12 @@ class Figure(object):
 
 	def set_title(self, *args):
 		if args:
-			self.__ax.set_title(self.__fig_title.format(*args))
+			fig_title = self.__fig_title.format(*args)
+			self.__ax.set_title(fig_title)
 		else:
-			self.__ax.title(self.__fig_title)
+			fig_title = self.__fig_title
+			self.__ax.title(fig_title)
+		return fig_title
 
 	def save_fig(self, *args):
 		self.__set_metadata()
