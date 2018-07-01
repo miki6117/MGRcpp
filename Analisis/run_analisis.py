@@ -251,11 +251,12 @@ class ResultsHandler(object):
 
 
 	def __append_next_column_to_tab(self, rows, param_dict):
-		rows[0] += (' & ' + '\\textbf{{{}}}'.format(str(param_dict['second_param'])))
+		second_param = self.__refactor_string_to_latex_standard(str(param_dict['second_param']))
+		rows[0] += (' & ' + '\\textbf{{{}}}'.format(second_param))
 		for i, x in enumerate(self.x_param):
 			try:
 				max_third_param_dict = param_dict['max_third_param'][i]
-				key = ''.join(max_third_param_dict.keys())
+				key = ''.join(str(mtp_key) for mtp_key in max_third_param_dict.keys())
 				value = ''.join(max_third_param_dict.values())
 				max_third_param = "{} \\break [\\textit{{{}}}]".format(key, value)
 				max_third_param = self.__refactor_string_to_latex_standard(max_third_param)
@@ -263,7 +264,7 @@ class ResultsHandler(object):
 				rows[i+1] += row
 			except IndexError:
 				break
-		most_frequent_third_params = ', '.join(param_dict['most_frequent_third_param'])
+		most_frequent_third_params = ', '.join(str(mftp) for mftp in param_dict['most_frequent_third_param'])
 		most_frequent_third_params = self.__refactor_string_to_latex_standard(most_frequent_third_params)
 		rows[len(rows) - 1] += ' & ' + most_frequent_third_params
 
@@ -293,6 +294,7 @@ class ResultsHandler(object):
 		self.__append_string_to_chapter_file(subsubsection_def)
 
 	def __add_tab(self, rows, tab_label): # TODO: tabbing
+		tab_label = self.__refactor_string_to_latex_standard(tab_label)
 		col_numb = len(rows[0].split('&')) - 1
 		width_ratio = "{0:.2f}".format(1 / (col_numb+1))
 		col_separator = ' | P{{{}\\textwidth-2\\tabcolsep}}'.format(width_ratio) 
@@ -347,10 +349,12 @@ class ResultsHandler(object):
 				figure.plot_fig_with_errorbars(x, y, yerr, symbol, label)
 				if separate_third_parameters:
 					fig_title = figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
+					fig_title = self.__refactor_string_to_latex_standard(fig_title)
 					fig_name = figure.save_fig(str(plot_index) + '_' + str(i) + '_' + str(j), param_dict['mode'], param_dict['direction'])
 					fig_names.append({fig_name : fig_title})
 			if not separate_third_parameters:
 				fig_title = figure.set_title(param_dict['direction'], param_dict['first_param'], param_dict['second_param'])
+				fig_title = self.__refactor_string_to_latex_standard(fig_title)
 				fig_name = figure.save_fig(str(plot_index) + '_' + str(i), param_dict['mode'], param_dict['direction'])
 				fig_names.append({fig_name : fig_title})
 
@@ -457,9 +461,7 @@ if __name__ == "__main__":
 	rh = ResultsHandler(parsed_list_of_results_dicts, FIGURE_METADATA, TARGET_SPEED, BASIC_PROPERTIES) # TODO: generate results chapter condition in class declaration
 	if GENERATE_RESULTS_CHAPTER:
 		rh.enable_results_chapter_generation(RESULTS_CHAPTER_FILE_NAME, FIG_FOLDER)
-	# for i, plot_option in enumerate(PLOTTING_OPTIONS):
-	# 	rh.save_to_figs(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
+	for i, plot_option in enumerate(PLOTTING_OPTIONS):
+		rh.handle_results(PLOTTING_OPTIONS[plot_option], i, PARAMETERS_SEPARATED)
 	# rh.save_to_figs(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
-	rh.handle_results(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
-
-# TODO: Add direction to figures' title
+	# rh.handle_results(PLOTTING_OPTIONS['memtype_depth_pattern'], 0, PARAMETERS_SEPARATED)
