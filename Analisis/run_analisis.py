@@ -237,7 +237,7 @@ class ResultsHandler(object):
 		last_row = '\\textbf{Max} ' # TODO: Rename
 		rows.append(first_row)
 		for size in self.x_param:
-			row = '\\textbf{{{}}}'.format(size)
+			row = '\\multirow{{2}}{{*}}{{\\textbf{{{}}}}}'.format(size)
 			rows.append(row)
 		rows.append(last_row)
 
@@ -254,12 +254,11 @@ class ResultsHandler(object):
 		rows[0] += (' & ' + '\\textbf{{{}}}'.format(str(param_dict['second_param'])))
 		for i, x in enumerate(self.x_param):
 			try:
-				max_third_param = [param for param in param_dict['max_third_param'][i]][0]
+				max_third_param_dict = param_dict['max_third_param'][i]
+				key = ''.join(max_third_param_dict.keys())
+				value = ''.join(max_third_param_dict.values())
+				max_third_param = "{} \\break [\\textit{{{}}}]".format(key, value)
 				max_third_param = self.__refactor_string_to_latex_standard(max_third_param)
-				# if '_' in max_third_param:
-				# 	max_third_param_list = list(max_third_param)
-				# 	max_third_param_list[max_third_param_list.index('_')] = '\_'
-				# 	max_third_param = ''.join(max_third_param_list)
 				row = ' & ' + max_third_param
 				rows[i+1] += row
 			except IndexError:
@@ -295,19 +294,17 @@ class ResultsHandler(object):
 	def __add_tab(self, rows, tab_label): # TODO: tabbing
 		col_numb = len(rows[0].split('&')) - 1
 		width_ratio = "{0:.2f}".format(1 / (col_numb+1))
-		# indend = '\t\t' 
-		# col_separator = ' | c' 
-		col_separator = ' | p{{{}\\textwidth-2\\tabcolsep}}'.format(width_ratio) 
-		begin_with_tab_label = "\\begin{{center}}\n\t\\begin{{tab}}\n\t\t{}\n\t\\end{{tab}}\n".format(tab_label)
-		# begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{l{}}}\n".format(col_separator * col_numb)
-		begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{p{{{}\\textwidth-2\\tabcolsep}}{}}}\n".format(width_ratio, col_separator * col_numb)
+		col_separator = ' | P{{{}\\textwidth-2\\tabcolsep}}'.format(width_ratio) 
+		begin_with_tab_label = "\\begin{{center}}\n\t\\begin{{tab}}\n\t\t{}\n\t\\end{{tab}}\n\t\\footnotesize\n".format(tab_label)
+		begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{| p{{{}\\textwidth-2\\tabcolsep}}{} |}}\n\\hline\n".format(width_ratio, col_separator * col_numb)
 		self.__append_string_to_chapter_file(begin_with_tab_label)
 		self.__append_string_to_chapter_file(begin_tabular_with_specified_no_of_columns)
 		for i, row in enumerate(rows):
 			if i == 0 or i == len(rows) - 2:
 				self.__append_string_to_chapter_file(row + '\\\\ \\hline\n')
 			else:
-				self.__append_string_to_chapter_file(row + '\\\\\n')
+				self.__append_string_to_chapter_file(row + '\\\\ \\hline\n') # TODO: thin line!
+				# self.__append_string_to_chapter_file(row + '\\\\\n')
 		ending = '\n\t\\end{tabular}\n\\end{center}\n'
 		self.__append_string_to_chapter_file(ending)
 
