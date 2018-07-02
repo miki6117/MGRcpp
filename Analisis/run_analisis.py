@@ -366,39 +366,47 @@ class ResultsHandler(object):
 					self.__append_next_column_to_tab(rows_write, param_dict)
 				tab_label = str(param_dict['mode'] + ' {} {}')
 
-				if next_param_dict['first_param'] != param_dict['first_param']: # Switching between subSUBsection
+				if (next_param_dict['first_param'] != param_dict['first_param']) or (next_param_dict['direction'] != param_dict['direction']): # Generating a tab per first_param and direction
 					if param_dict['direction'] == 'read':
-						read_list.append({param_dict['first_param'] : rows_read})
+						# print("\nRead in", param_dict['mode'], param_dict['direction'], param_dict['first_param']) # DEBUG
+						# print(json.dumps(rows_read, indent=2))
+						read_list.append({str(param_dict['first_param']) + ' read 1': rows_read})
+						rows_read = []
+						self.__generate_first_column_for_tab(rows_read)
 					elif param_dict['direction'] == 'write':
-						write_list.append({param_dict['first_param'] : rows_write})
-					rows_read = []
-					rows_write = []
-					self.__generate_first_column_for_tab(rows_write)
-					self.__generate_first_column_for_tab(rows_read)
+						# print("\nWrite in", param_dict['mode'], param_dict['direction'], param_dict['first_param']) # DEBUG
+						# print(json.dumps(rows_write, indent=2))
+						write_list.append({str(param_dict['first_param']) + ' wirte 1' : rows_write})
+						rows_write = []
+						self.__generate_first_column_for_tab(rows_write)
 
 
 				if (next_param_dict['mode'] != current_mode) or is_last_param_dict:
+					if param_dict['direction'] == 'read':
+						# read_list.append({str(param_dict['first_param']) + ' read 2' : rows_read})
+						for read in read_list:
+							for r in read:
+								self.__add_tab(read[r], tab_label.format("read", r))
+					elif param_dict['direction'] == 'write':
+						# write_list.append({str(param_dict['first_param']) + ' write 2' : rows_write})
+						for write in write_list:
+							for w in write:
+								self.__add_tab(write[w], tab_label.format("write", w))
 					self.__organize_figures(fig_names)
 					fig_names = []
-					if not read_list or not write_list: # Works only for patterns nonsym mode
-						print("if not read_list or not write_list TRUE in ", param_dict['mode'], param_dict['first_param']) # DEBUG
-						self.__add_tab(rows_read, tab_label.format("read", param_dict['first_param']))
-						self.__add_tab(rows_write, tab_label.format("write", param_dict['first_param']))
+					# if not read_list or not write_list: # Works only for patterns nonsym mode
+					# 	print("if not read_list or not write_list TRUE in ", param_dict['mode'], param_dict['first_param']) # DEBUG
+					# 	self.__add_tab(rows_read, tab_label.format("read", param_dict['first_param']))
+					# 	self.__add_tab(rows_write, tab_label.format("write", param_dict['first_param']))
 					print("Write list in", param_dict['mode'], param_dict['first_param']) # DEBUG
 					print(json.dumps(write_list, indent=2)) # DEBUG
 
 					print("\nRead list in", param_dict['mode'], param_dict['first_param']) # DEBUG
 					print(json.dumps(read_list, indent=2)) # DEBUG
-					for write in write_list:
-						for w in write:
-							self.__add_tab(write[w], tab_label.format("write", w))
-					for read in read_list:
-						for r in read:
-							self.__add_tab(read[r], tab_label.format("read", r))
 					rows_read = []
 					rows_write = []
-					self.__generate_first_column_for_tab(rows_write)
 					self.__generate_first_column_for_tab(rows_read)
+					self.__generate_first_column_for_tab(rows_write)
 					read_list = []
 					write_list = []
 					if not is_last_param_dict:
