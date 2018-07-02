@@ -135,7 +135,7 @@ class CounterParams(object):
 		elif head == 'u(av)':
 			return self.stdev_speed / self.divider
 
-# import json
+import json # DEBUG
 class ResultsHandler(object):
 	def __init__(self, list_of_results_dicts, plot_metadata, target_speed, basic_properties):
 		self.list_of_results_dicts = list_of_results_dicts
@@ -312,7 +312,7 @@ class ResultsHandler(object):
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
-		# print(json.dumps(list_of_param_dicts, indent=2))
+		# print(json.dumps(list_of_param_dicts, indent=2)) # DEBUG
 		# '''
 		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
 		fig_names = []
@@ -327,7 +327,7 @@ class ResultsHandler(object):
 		tab_label = None
 		next_param_dict = None
 		is_last_param_dict = False
-		tabs_to_append = {}
+		# tabs_to_append = {}
 		read_list = []
 		write_list = []
 		for i, param_dict in enumerate(list_of_param_dicts):
@@ -366,7 +366,7 @@ class ResultsHandler(object):
 					self.__append_next_column_to_tab(rows_write, param_dict)
 				tab_label = str(param_dict['mode'] + ' {} {}')
 
-				if next_param_dict['first_param'] != param_dict['first_param']:
+				if next_param_dict['first_param'] != param_dict['first_param']: # Switching between subSUBsection
 					if param_dict['direction'] == 'read':
 						read_list.append({param_dict['first_param'] : rows_read})
 					elif param_dict['direction'] == 'write':
@@ -380,9 +380,15 @@ class ResultsHandler(object):
 				if (next_param_dict['mode'] != current_mode) or is_last_param_dict:
 					self.__organize_figures(fig_names)
 					fig_names = []
-					if not read_list or not write_list:
+					if not read_list or not write_list: # Works only for patterns nonsym mode
+						print("if not read_list or not write_list TRUE in ", param_dict['mode'], param_dict['first_param']) # DEBUG
 						self.__add_tab(rows_read, tab_label.format("read", param_dict['first_param']))
-						self.__add_tab(rows_write, tab_label.format("write", param_dict['first_param']))					
+						self.__add_tab(rows_write, tab_label.format("write", param_dict['first_param']))
+					print("Write list in", param_dict['mode'], param_dict['first_param']) # DEBUG
+					print(json.dumps(write_list, indent=2)) # DEBUG
+
+					print("\nRead list in", param_dict['mode'], param_dict['first_param']) # DEBUG
+					print(json.dumps(read_list, indent=2)) # DEBUG
 					for write in write_list:
 						for w in write:
 							self.__add_tab(write[w], tab_label.format("write", w))
