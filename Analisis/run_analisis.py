@@ -445,6 +445,55 @@ class ResultsHandler(object):
 			self.__add_tab(bit32_write_1024_tab, '32bit write 1024')
 			self.__add_tab(bit32_write_2048_tab, '32bit write 2048')
 
+		elif ploting_option['subsection'] == 'Depths': # TODO: tabs for nonsym mode!
+			nonsym_write_tab = []
+			nonsym_read_tab = []
+			bit32_read_counter_8bit_tab = []
+			bit32_read_counter_32bit_tab = []
+			bit32_read_walking_1_tab = []
+			bit32_write_counter_8bit_tab = []
+			bit32_write_counter_32bit_tab = []
+			bit32_write_walking_1_tab = []
+
+			self.__generate_first_column_for_tab(nonsym_write_tab)
+			self.__generate_first_column_for_tab(nonsym_read_tab)
+			self.__generate_first_column_for_tab(bit32_read_counter_8bit_tab)
+			self.__generate_first_column_for_tab(bit32_read_counter_32bit_tab)
+			self.__generate_first_column_for_tab(bit32_read_walking_1_tab)
+			self.__generate_first_column_for_tab(bit32_write_counter_8bit_tab)
+			self.__generate_first_column_for_tab(bit32_write_counter_32bit_tab)
+			self.__generate_first_column_for_tab(bit32_write_walking_1_tab)
+
+			for param_dict in list_of_param_dict:
+				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'read':
+					if str(param_dict['first_param']) == 'counter_8bit':
+						self.__append_next_column_to_tab(bit32_read_counter_8bit_tab, param_dict)
+					if str(param_dict['first_param']) == 'counter_32bit':
+						self.__append_next_column_to_tab(bit32_read_counter_32bit_tab, param_dict)
+					if str(param_dict['first_param']) == 'walking_1':
+						self.__append_next_column_to_tab(bit32_read_walking_1_tab, param_dict)
+				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'write':
+					if str(param_dict['first_param']) == 'counter_8bit':
+						self.__append_next_column_to_tab(bit32_write_counter_8bit_tab, param_dict)
+					if str(param_dict['first_param']) == 'counter_32bit':
+						self.__append_next_column_to_tab(bit32_write_counter_32bit_tab, param_dict)
+					if str(param_dict['first_param']) == 'walking_1':
+						self.__append_next_column_to_tab(bit32_write_walking_1_tab, param_dict)
+
+			self.__add_subsection('Depths')
+			self.__add_subsubsection('nonsym')
+			self.__organize_figures(nonsym_figs)
+			# self.__add_tab(nonsym_read_blockram_tab, 'nonsym read blockram')
+			# self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
+			self.__add_subsubsection('32bit')
+			self.__organize_figures(bit32_figs)
+			self.__add_tab(bit32_read_counter_8bit_tab, '32bit read counter_8bit')
+			self.__add_tab(bit32_read_counter_32bit_tab, '32bit read counter_32bit')
+			self.__add_tab(bit32_read_walking_1_tab, '32bit read walking_1')
+			self.__add_tab(bit32_write_counter_8bit_tab, '32bit write counter_8bit')
+			self.__add_tab(bit32_write_counter_32bit_tab, '32bit write counter_32bit')
+			self.__add_tab(bit32_write_walking_1_tab, '32bit write walking_1')
+
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
