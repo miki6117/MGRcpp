@@ -232,14 +232,15 @@ class ResultsHandler(object):
 		with open(self.chapter_file_name, "a") as fd:
 			fd.write(string_to_append)
 
-	def __generate_first_column_for_tab(self, rows):
+	def __generate_first_column_for_tab(self, rows, is_max_row_needed=True):
 		first_row = '\\textbf{Pattern size [B]} '
 		last_row = '\\textbf{Max} ' # TODO: Rename
 		rows.append(first_row)
 		for size in self.x_param:
 			row = '\\multirow{{2}}{{*}}{{\\textbf{{{}}}}}'.format(size)
 			rows.append(row)
-		rows.append(last_row)
+		if is_max_row_needed:
+			rows.append(last_row)
 
 	def __refactor_string_to_latex_standard(self, string_to_refactor):
 		string_to_refactor_list = list(string_to_refactor)
@@ -267,6 +268,20 @@ class ResultsHandler(object):
 		most_frequent_third_params = ', '.join(str(mftp) for mftp in param_dict['most_frequent_third_param'])
 		most_frequent_third_params = self.__refactor_string_to_latex_standard(most_frequent_third_params)
 		rows[len(rows) - 1] += ' & ' + most_frequent_third_params
+
+	def __append_next_column_in_nonsym_memtype_mode_to_tab(self, rows, column_name, read_value_list, write_value_list):
+		column_name = self.__refactor_string_to_latex_standard(column_name)
+		rows[0] += (' & ' + '\\textbf{{{}}}'.format(column_name))
+		for i, x in enumerate(self.x_param):
+			try:
+				read_value = read_value_list[i]
+				write_value = write_value_list[i]
+				max_third_params = "{} \\break [\\textit{{{}}}]".format(read_value, write_value)
+				max_third_params = self.__refactor_string_to_latex_standard(max_third_params)
+				row = ' & ' + max_third_params
+				rows[i+1] += row
+			except IndexError:
+				break
 
 	def __organize_figures(self, fig_names_list):
 		fig_init = "\\includegraphics[width=\\textwidth]{{{}}}"
@@ -387,11 +402,11 @@ class ResultsHandler(object):
 			bit32_write_1024_tab = []
 			bit32_write_2048_tab = []
 
-			self.__generate_first_column_for_tab(nonsym_1632_read_write_tab)
-			self.__generate_first_column_for_tab(nonsym_64_read_write_tab)
-			self.__generate_first_column_for_tab(nonsym_256_read_write_tab)
-			self.__generate_first_column_for_tab(nonsym_1024_read_write_tab)
-			self.__generate_first_column_for_tab(nonsym_2048_read_write_tab)
+			self.__generate_first_column_for_tab(nonsym_1632_read_write_tab, False)
+			self.__generate_first_column_for_tab(nonsym_64_read_write_tab, False)
+			self.__generate_first_column_for_tab(nonsym_256_read_write_tab, False)
+			self.__generate_first_column_for_tab(nonsym_1024_read_write_tab, False)
+			self.__generate_first_column_for_tab(nonsym_2048_read_write_tab, False)
 			self.__generate_first_column_for_tab(bit32_read_16_tab)
 			self.__generate_first_column_for_tab(bit32_read_64_tab)
 			self.__generate_first_column_for_tab(bit32_read_256_tab)
@@ -403,7 +418,170 @@ class ResultsHandler(object):
 			self.__generate_first_column_for_tab(bit32_write_1024_tab)
 			self.__generate_first_column_for_tab(bit32_write_2048_tab)
 
+			nonsym_16_counter_8bit_read = []
+			nonsym_16_counter_32bit_read = []
+			nonsym_16_walking_1_read = []
+			nonsym_16_asic_read = []
+
+			nonsym_64_counter_8bit_read = []
+			nonsym_64_counter_32bit_read = []
+			nonsym_64_walking_1_read = []
+			nonsym_64_asic_read = []
+			
+			nonsym_256_counter_8bit_read = []
+			nonsym_256_counter_32bit_read = []
+			nonsym_256_walking_1_read = []
+			nonsym_256_asic_read = []
+
+			nonsym_1024_counter_8bit_read = []
+			nonsym_1024_counter_32bit_read = []
+			nonsym_1024_walking_1_read = []
+			nonsym_1024_asic_read = []
+
+			nonsym_2048_counter_8bit_read = []
+			nonsym_2048_counter_32bit_read = []
+			nonsym_2048_walking_1_read = []
+			nonsym_2048_asic_read = []
+
+			nonsym_32_counter_8bit_write = []
+			nonsym_32_counter_32bit_write = []
+			nonsym_32_walking_1_write = []
+			nonsym_32_asic_write = []
+
+			nonsym_64_counter_8bit_write = []
+			nonsym_64_counter_32bit_write = []
+			nonsym_64_walking_1_write = []
+			nonsym_64_asic_write = []
+			
+			nonsym_256_counter_8bit_write = []
+			nonsym_256_counter_32bit_write = []
+			nonsym_256_walking_1_write = []
+			nonsym_256_asic_write = []
+
+			nonsym_1024_counter_8bit_write = []
+			nonsym_1024_counter_32bit_write = []
+			nonsym_1024_walking_1_write = []
+			nonsym_1024_asic_write = []
+
+			nonsym_2048_counter_8bit_write = []
+			nonsym_2048_counter_32bit_write = []
+			nonsym_2048_walking_1_write = []
+			nonsym_2048_asic_write = []
+
 			for param_dict in list_of_param_dict:
+				if param_dict['mode'] == 'nonsym' and param_dict['direction'] == 'read':
+					if str(param_dict['first_param']) == '16':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_16_counter_8bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_16_counter_32bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_16_walking_1_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_16_asic_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '64':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_64_counter_8bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_64_counter_32bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_64_walking_1_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_64_asic_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '256':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_256_counter_8bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_256_counter_32bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_256_walking_1_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_256_asic_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '1024':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_1024_counter_8bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_1024_counter_32bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_1024_walking_1_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_1024_asic_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '2048':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_2048_counter_8bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_2048_counter_32bit_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_2048_walking_1_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_2048_asic_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						nonsym_16_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					# if str(param_dict['first_param']) == '64':
+					# 	nonsym_64_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					# if str(param_dict['first_param']) == '256':
+					# 	nonsym_256_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					# if str(param_dict['first_param']) == '1024':
+					# 	nonsym_1024_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					# if str(param_dict['first_param']) == '2048':
+					# 	nonsym_2048_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+				if param_dict['mode'] == 'nonsym' and param_dict['direction'] == 'write':
+					if str(param_dict['first_param']) == '32':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_32_counter_8bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_32_counter_32bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_32_walking_1_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_32_asic_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '64':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_64_counter_8bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_64_counter_32bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_64_walking_1_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_64_asic_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '256':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_256_counter_8bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_256_counter_32bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_256_walking_1_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_256_asic_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '1024':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_1024_counter_8bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_1024_counter_32bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_1024_walking_1_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_1024_asic_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+					if str(param_dict['first_param']) == '2048':
+						if param_dict['second_param'] == 'counter_8bit':
+							nonsym_2048_counter_8bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'counter_32bit':
+							nonsym_2048_counter_32bit_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'walking_1':
+							nonsym_2048_walking_1_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						if param_dict['second_param'] == 'asic':
+							nonsym_2048_asic_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+						# nonsym_16_read = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+				# if param_dict['mode'] == 'nonsym' and param_dict['direction'] == 'write':
+				# 	if str(param_dict['first_param']) == '32':
+				# 		nonsym_32_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+				# 	if str(param_dict['first_param']) == '64':
+				# 		nonsym_64_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+				# 	if str(param_dict['first_param']) == '256':
+				# 		nonsym_256_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+				# 	if str(param_dict['first_param']) == '1024':
+				# 		nonsym_1024_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']]
+				# 	if str(param_dict['first_param']) == '2048':
+				# 		nonsym_2048_write = [''.join(mtp.values()) for mtp in param_dict['max_third_param']
 				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'read':
 					if str(param_dict['first_param']) == '16':
 						self.__append_next_column_to_tab(bit32_read_16_tab, param_dict)
@@ -427,10 +605,40 @@ class ResultsHandler(object):
 					if str(param_dict['first_param']) == '2048':
 						self.__append_next_column_to_tab(bit32_write_2048_tab, param_dict)
 
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1632_read_write_tab, 'counter_8bit', nonsym_16_counter_8bit_read, nonsym_32_counter_8bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1632_read_write_tab, 'counter_32bit', nonsym_16_counter_32bit_read, nonsym_32_counter_32bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1632_read_write_tab, 'walking_1', nonsym_16_walking_1_read, nonsym_32_walking_1_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1632_read_write_tab, 'asic', nonsym_16_asic_read, nonsym_32_asic_write)
+
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_64_read_write_tab, 'counter_8bit', nonsym_64_counter_8bit_read, nonsym_64_counter_8bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_64_read_write_tab, 'counter_32bit', nonsym_64_counter_32bit_read, nonsym_64_counter_32bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_64_read_write_tab, 'walking_1', nonsym_64_walking_1_read, nonsym_64_walking_1_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_64_read_write_tab, 'asic', nonsym_64_asic_read, nonsym_64_asic_write)
+
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_256_read_write_tab, 'counter_8bit', nonsym_256_counter_8bit_read, nonsym_256_counter_8bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_256_read_write_tab, 'counter_32bit', nonsym_256_counter_32bit_read, nonsym_256_counter_32bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_256_read_write_tab, 'walking_1', nonsym_256_walking_1_read, nonsym_256_walking_1_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_256_read_write_tab, 'asic', nonsym_256_asic_read, nonsym_256_asic_write)
+
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1024_read_write_tab, 'counter_8bit', nonsym_1024_counter_8bit_read, nonsym_1024_counter_8bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1024_read_write_tab, 'counter_32bit', nonsym_1024_counter_32bit_read, nonsym_1024_counter_32bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1024_read_write_tab, 'walking_1', nonsym_1024_walking_1_read, nonsym_1024_walking_1_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_1024_read_write_tab, 'asic', nonsym_1024_asic_read, nonsym_1024_asic_write)
+
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_2048_read_write_tab, 'counter_8bit', nonsym_2048_counter_8bit_read, nonsym_2048_counter_8bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_2048_read_write_tab, 'counter_32bit', nonsym_2048_counter_32bit_read, nonsym_2048_counter_32bit_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_2048_read_write_tab, 'walking_1', nonsym_2048_walking_1_read, nonsym_2048_walking_1_write)
+			self.__append_next_column_in_nonsym_memtype_mode_to_tab(nonsym_2048_read_write_tab, 'asic', nonsym_2048_asic_read, nonsym_2048_asic_write)
+
+
 			self.__add_subsection('Memory types')
 			self.__add_subsubsection('nonsym')
 			self.__organize_figures(nonsym_figs)
-			# self.__add_tab(nonsym_read_blockram_tab, 'nonsym read blockram')
+			self.__add_tab(nonsym_1632_read_write_tab, 'nonsym 16 read 32 write blockram')
+			self.__add_tab(nonsym_64_read_write_tab, 'nonsym 64 read 64 write blockram')
+			self.__add_tab(nonsym_256_read_write_tab, 'nonsym 256 read 256 write blockram')
+			self.__add_tab(nonsym_1024_read_write_tab, 'nonsym 1024 read 1024 write blockram')
+			self.__add_tab(nonsym_2048_read_write_tab, 'nonsym 2048 read 2048 write blockram')
 			# self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
 			self.__add_subsubsection('32bit')
 			self.__organize_figures(bit32_figs)
