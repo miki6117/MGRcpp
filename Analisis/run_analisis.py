@@ -251,8 +251,11 @@ class ResultsHandler(object):
 		return string_to_refactor
 
 
-	def __append_next_column_to_tab(self, rows, param_dict):
-		second_param = self.__refactor_string_to_latex_standard(str(param_dict['second_param']))
+	def __append_next_column_to_tab(self, rows, param_dict, column_name=None):
+		if column_name:
+			second_param = self.__refactor_string_to_latex_standard(str(column_name))
+		else:
+			second_param = self.__refactor_string_to_latex_standard(str(param_dict['second_param']))
 		rows[0] += (' & ' + '\\textbf{{{}}}'.format(second_param))
 		for i, x in enumerate(self.x_param):
 			try:
@@ -654,8 +657,8 @@ class ResultsHandler(object):
 			self.__add_tab(bit32_write_2048_tab, '32bit write 2048')
 
 		elif ploting_option['subsection'] == 'Depths': # TODO: tabs for nonsym mode!
-			nonsym_write_tab = []
 			nonsym_read_tab = []
+			nonsym_write_tab = []
 			bit32_read_counter_8bit_tab = []
 			bit32_read_counter_32bit_tab = []
 			bit32_read_walking_1_tab = []
@@ -663,8 +666,8 @@ class ResultsHandler(object):
 			bit32_write_counter_32bit_tab = []
 			bit32_write_walking_1_tab = []
 
-			self.__generate_first_column_for_tab(nonsym_write_tab)
 			self.__generate_first_column_for_tab(nonsym_read_tab)
+			self.__generate_first_column_for_tab(nonsym_write_tab)
 			self.__generate_first_column_for_tab(bit32_read_counter_8bit_tab)
 			self.__generate_first_column_for_tab(bit32_read_counter_32bit_tab)
 			self.__generate_first_column_for_tab(bit32_read_walking_1_tab)
@@ -673,6 +676,25 @@ class ResultsHandler(object):
 			self.__generate_first_column_for_tab(bit32_write_walking_1_tab)
 
 			for param_dict in list_of_param_dict:
+				if param_dict['mode'] == 'nonsym' and param_dict['direction'] == 'read':
+					if str(param_dict['first_param']) == 'counter_8bit':
+						self.__append_next_column_to_tab(nonsym_read_tab, param_dict, 'counter_8bit')
+					if str(param_dict['first_param']) == 'counter_32bit':
+						self.__append_next_column_to_tab(nonsym_read_tab, param_dict, 'counter_32bit')
+					if str(param_dict['first_param']) == 'walking_1':
+						self.__append_next_column_to_tab(nonsym_read_tab, param_dict, 'walking_1')
+					if str(param_dict['first_param']) == 'ascii':
+						self.__append_next_column_to_tab(nonsym_read_tab, param_dict, 'ascii')
+				if param_dict['mode'] == 'nonsym' and param_dict['direction'] == 'write':
+					if str(param_dict['first_param']) == 'counter_8bit':
+						self.__append_next_column_to_tab(nonsym_write_tab, param_dict, 'counter_8bit')
+					if str(param_dict['first_param']) == 'counter_32bit':
+						self.__append_next_column_to_tab(nonsym_write_tab, param_dict, 'counter_32bit')
+					if str(param_dict['first_param']) == 'walking_1':
+						self.__append_next_column_to_tab(nonsym_write_tab, param_dict, 'walking_1')
+					if str(param_dict['first_param']) == 'ascii':
+						self.__append_next_column_to_tab(nonsym_write_tab, param_dict, 'ascii')
+
 				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'read':
 					if str(param_dict['first_param']) == 'counter_8bit':
 						self.__append_next_column_to_tab(bit32_read_counter_8bit_tab, param_dict)
@@ -691,7 +713,8 @@ class ResultsHandler(object):
 			self.__add_subsection('Depths')
 			self.__add_subsubsection('nonsym')
 			self.__organize_figures(nonsym_figs)
-			# self.__add_tab(nonsym_read_blockram_tab, 'nonsym read blockram')
+			self.__add_tab(nonsym_read_tab, 'nonsym read blockram')
+			self.__add_tab(nonsym_write_tab, 'nonsym read blockram')
 			# self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
 			self.__add_subsubsection('32bit')
 			self.__organize_figures(bit32_figs)
@@ -751,7 +774,8 @@ class ResultsHandler(object):
 				fig_name = figure.save_fig(str(plot_index) + '_' + str(i), param_dict['mode'], param_dict['direction'])
 				fig_names.append({fig_name : fig_title})
 
-		self.__generate_subsection_based_on_plot_option(plotting_option, list_of_param_dicts, fig_names)
+		if self.generate_results_chapter:
+			self.__generate_subsection_based_on_plot_option(plotting_option, list_of_param_dicts, fig_names)
 			# print(json.dumps(fig_names, indent=2))
 			# if self.generate_results_chapter:
 			# 	if param_dict['direction'] == 'read':
