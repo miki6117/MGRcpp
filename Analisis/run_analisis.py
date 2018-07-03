@@ -311,21 +311,15 @@ class ResultsHandler(object):
 		self.__append_string_to_chapter_file(ending)
 
 	def __generate_subsection_based_on_plot_option(self, ploting_option, list_of_param_dict, all_fig_names):
-		tab_rows = []
-		self.__generate_first_column_for_tab(tab_rows)
-		# dict_for_chapter_generation = {}
-		# tabs_for_subsubsection_list = []
+		nonsym_figs = []
+		bit32_figs = []
+		for fig in all_fig_names:
+			if 'nonsym' in ''.join(fig.keys()):
+				nonsym_figs.append(fig)
+			elif '32bit' in ''.join(fig.keys()):
+				bit32_figs.append(fig)
+
 		if ploting_option['subsection'] == 'Patterns':
-			# nonsym_tabs = []
-			# bit32_tabs = []
-			# nonsym_read_blockram_tab = tab_rows
-			# nonsym_write_blockram_tab = tab_rows
-			# bit32_read_blockram_tab = tab_rows
-			# bit32_read_distributedram_tab = tab_rows
-			# bit32_read_shiftregister_tab = tab_rows
-			# bit32_write_blockram_tab = tab_rows
-			# bit32_write_distributedram_tab = tab_rows
-			# bit32_write_shiftregister_tab = tab_rows
 			nonsym_read_blockram_tab = []
 			nonsym_write_blockram_tab = []
 			bit32_read_blockram_tab = []
@@ -361,13 +355,6 @@ class ResultsHandler(object):
 						self.__append_next_column_to_tab(bit32_write_distributedram_tab, param_dict)
 					if param_dict['first_param'] == 'shiftregister':
 						self.__append_next_column_to_tab(bit32_write_shiftregister_tab, param_dict)
-			nonsym_figs = []
-			bit32_figs = []
-			for fig in all_fig_names:
-				if 'nonsym' in ''.join(fig.keys()):
-					nonsym_figs.append(fig)
-				elif '32bit' in ''.join(fig.keys()):
-					bit32_figs.append(fig)
 
 			self.__add_subsection('Patterns')
 			self.__add_subsubsection('nonsym')
@@ -383,16 +370,80 @@ class ResultsHandler(object):
 			self.__add_tab(bit32_write_distributedram_tab, '32bit write distributedram')
 			self.__add_tab(bit32_write_shiftregister_tab, '32bit write shiftregister')
 
+		elif ploting_option['subsection'] == 'Memory types': # TODO: tabs for nonsym mode!
+			nonsym_1632_read_write_tab = []
+			nonsym_64_read_write_tab = []
+			nonsym_256_read_write_tab = []
+			nonsym_1024_read_write_tab = []
+			nonsym_2048_read_write_tab = []
+			bit32_read_16_tab = []
+			bit32_read_64_tab = []
+			bit32_read_256_tab = []
+			bit32_read_1024_tab = []
+			bit32_read_2048_tab = []
+			bit32_write_16_tab = []
+			bit32_write_64_tab = []
+			bit32_write_256_tab = []
+			bit32_write_1024_tab = []
+			bit32_write_2048_tab = []
 
-			# nonsym_tabs.append({'nonsym read blockram' : nonsym_read_blockram_tab})
-			# nonsym_tabs.append({'nonsym write blockram' : nonsym_write_blockram_tab})
-			# bit32_tabs.append({'32bit read blockram' : bit32_read_blockram_tab})
-			# bit32_tabs.append({'32bit read distributedram' : bit32_read_distributedram_tab})
-			# bit32_tabs.append({'32bit read shiftregister' : bit32_read_shiftregister_tab})
-			# bit32_tabs.append({'32bit write blockram' : bit32_write_blockram_tab})
-			# bit32_tabs.append({'32bit write distributedram' : bit32_write_distributedram_tab})
-			# bit32_tabs.append({'32bit write shiftregister' : bit32_write_shiftregister_tab})
+			self.__generate_first_column_for_tab(nonsym_1632_read_write_tab)
+			self.__generate_first_column_for_tab(nonsym_64_read_write_tab)
+			self.__generate_first_column_for_tab(nonsym_256_read_write_tab)
+			self.__generate_first_column_for_tab(nonsym_1024_read_write_tab)
+			self.__generate_first_column_for_tab(nonsym_2048_read_write_tab)
+			self.__generate_first_column_for_tab(bit32_read_16_tab)
+			self.__generate_first_column_for_tab(bit32_read_64_tab)
+			self.__generate_first_column_for_tab(bit32_read_256_tab)
+			self.__generate_first_column_for_tab(bit32_read_1024_tab)
+			self.__generate_first_column_for_tab(bit32_read_2048_tab)
+			self.__generate_first_column_for_tab(bit32_write_16_tab)
+			self.__generate_first_column_for_tab(bit32_write_64_tab)
+			self.__generate_first_column_for_tab(bit32_write_256_tab)
+			self.__generate_first_column_for_tab(bit32_write_1024_tab)
+			self.__generate_first_column_for_tab(bit32_write_2048_tab)
 
+			for param_dict in list_of_param_dict:
+				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'read':
+					if str(param_dict['first_param']) == '16':
+						self.__append_next_column_to_tab(bit32_read_16_tab, param_dict)
+					if str(param_dict['first_param']) == '64':
+						self.__append_next_column_to_tab(bit32_read_64_tab, param_dict)
+					if str(param_dict['first_param']) == '256':
+						self.__append_next_column_to_tab(bit32_read_256_tab, param_dict)
+					if str(param_dict['first_param']) == '1024':
+						self.__append_next_column_to_tab(bit32_read_1024_tab, param_dict)
+					if str(param_dict['first_param']) == '2048':
+						self.__append_next_column_to_tab(bit32_read_2048_tab, param_dict)
+				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'write':
+					if str(param_dict['first_param']) == '16':
+						self.__append_next_column_to_tab(bit32_write_16_tab, param_dict)
+					if str(param_dict['first_param']) == '64':
+						self.__append_next_column_to_tab(bit32_write_64_tab, param_dict)
+					if str(param_dict['first_param']) == '256':
+						self.__append_next_column_to_tab(bit32_write_256_tab, param_dict)
+					if str(param_dict['first_param']) == '1024':
+						self.__append_next_column_to_tab(bit32_write_1024_tab, param_dict)
+					if str(param_dict['first_param']) == '2048':
+						self.__append_next_column_to_tab(bit32_write_2048_tab, param_dict)
+
+			self.__add_subsection('Memory types')
+			self.__add_subsubsection('nonsym')
+			self.__organize_figures(nonsym_figs)
+			# self.__add_tab(nonsym_read_blockram_tab, 'nonsym read blockram')
+			# self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
+			self.__add_subsubsection('32bit')
+			self.__organize_figures(bit32_figs)
+			self.__add_tab(bit32_read_16_tab, '32bit read 16')
+			self.__add_tab(bit32_read_64_tab, '32bit read 64')
+			self.__add_tab(bit32_read_256_tab, '32bit read 256')
+			self.__add_tab(bit32_read_1024_tab, '32bit read 1024')
+			self.__add_tab(bit32_read_2048_tab, '32bit read 2048')
+			self.__add_tab(bit32_write_16_tab, '32bit write 16')
+			self.__add_tab(bit32_write_64_tab, '32bit write 64')
+			self.__add_tab(bit32_write_256_tab, '32bit write 256')
+			self.__add_tab(bit32_write_1024_tab, '32bit write 1024')
+			self.__add_tab(bit32_write_2048_tab, '32bit write 2048')
 
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
