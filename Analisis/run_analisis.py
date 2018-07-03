@@ -310,6 +310,91 @@ class ResultsHandler(object):
 		ending = '\n\t\\end{tabular}\n\\end{center}\n'
 		self.__append_string_to_chapter_file(ending)
 
+	def __generate_subsection_based_on_plot_option(self, ploting_option, list_of_param_dict, all_fig_names):
+		tab_rows = []
+		self.__generate_first_column_for_tab(tab_rows)
+		# dict_for_chapter_generation = {}
+		# tabs_for_subsubsection_list = []
+		if ploting_option['subsection'] == 'Patterns':
+			# nonsym_tabs = []
+			# bit32_tabs = []
+			# nonsym_read_blockram_tab = tab_rows
+			# nonsym_write_blockram_tab = tab_rows
+			# bit32_read_blockram_tab = tab_rows
+			# bit32_read_distributedram_tab = tab_rows
+			# bit32_read_shiftregister_tab = tab_rows
+			# bit32_write_blockram_tab = tab_rows
+			# bit32_write_distributedram_tab = tab_rows
+			# bit32_write_shiftregister_tab = tab_rows
+			nonsym_read_blockram_tab = []
+			nonsym_write_blockram_tab = []
+			bit32_read_blockram_tab = []
+			bit32_read_distributedram_tab = []
+			bit32_read_shiftregister_tab = []
+			bit32_write_blockram_tab = []
+			bit32_write_distributedram_tab = []
+			bit32_write_shiftregister_tab = []
+			self.__generate_first_column_for_tab(nonsym_read_blockram_tab)
+			self.__generate_first_column_for_tab(nonsym_write_blockram_tab)
+			self.__generate_first_column_for_tab(bit32_read_blockram_tab)
+			self.__generate_first_column_for_tab(bit32_read_distributedram_tab)
+			self.__generate_first_column_for_tab(bit32_read_shiftregister_tab)
+			self.__generate_first_column_for_tab(bit32_write_blockram_tab)
+			self.__generate_first_column_for_tab(bit32_write_distributedram_tab)
+			self.__generate_first_column_for_tab(bit32_write_shiftregister_tab)
+			for param_dict in list_of_param_dict:
+				if param_dict['mode'] == 'nonsym' and param_dict['direction'] == 'read':
+					self.__append_next_column_to_tab(nonsym_read_blockram_tab, param_dict)
+				if param_dict['mode'] == 'nonsym' and param_dict['direction'] == 'write':
+					self.__append_next_column_to_tab(nonsym_write_blockram_tab, param_dict)
+				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'read':
+					if param_dict['first_param'] == 'blockram':
+						self.__append_next_column_to_tab(bit32_read_blockram_tab, param_dict)
+					if param_dict['first_param'] == 'distributedram':
+						self.__append_next_column_to_tab(bit32_read_distributedram_tab, param_dict)
+					if param_dict['first_param'] == 'shiftregister':
+						self.__append_next_column_to_tab(bit32_read_shiftregister_tab, param_dict)
+				if param_dict['mode'] == '32bit' and param_dict['direction'] == 'write':
+					if param_dict['first_param'] == 'blockram':
+						self.__append_next_column_to_tab(bit32_write_blockram_tab, param_dict)
+					if param_dict['first_param'] == 'distributedram':
+						self.__append_next_column_to_tab(bit32_write_distributedram_tab, param_dict)
+					if param_dict['first_param'] == 'shiftregister':
+						self.__append_next_column_to_tab(bit32_write_shiftregister_tab, param_dict)
+			nonsym_figs = []
+			bit32_figs = []
+			for fig in all_fig_names:
+				if 'nonsym' in ''.join(fig.keys()):
+					nonsym_figs.append(fig)
+				elif '32bit' in ''.join(fig.keys()):
+					bit32_figs.append(fig)
+
+			self.__add_subsection('Patterns')
+			self.__add_subsubsection('nonsym')
+			self.__organize_figures(nonsym_figs)
+			self.__add_tab(nonsym_read_blockram_tab, 'nonsym read blockram')
+			self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
+			self.__add_subsubsection('32bit')
+			self.__organize_figures(bit32_figs)
+			self.__add_tab(bit32_read_blockram_tab, '32bit read blockram')
+			self.__add_tab(bit32_read_distributedram_tab, '32bit read distributedram')
+			self.__add_tab(bit32_read_shiftregister_tab, '32bit read shiftregister')
+			self.__add_tab(bit32_write_blockram_tab, '32bit write blockram')
+			self.__add_tab(bit32_write_distributedram_tab, '32bit write distributedram')
+			self.__add_tab(bit32_write_shiftregister_tab, '32bit write shiftregister')
+
+
+			# nonsym_tabs.append({'nonsym read blockram' : nonsym_read_blockram_tab})
+			# nonsym_tabs.append({'nonsym write blockram' : nonsym_write_blockram_tab})
+			# bit32_tabs.append({'32bit read blockram' : bit32_read_blockram_tab})
+			# bit32_tabs.append({'32bit read distributedram' : bit32_read_distributedram_tab})
+			# bit32_tabs.append({'32bit read shiftregister' : bit32_read_shiftregister_tab})
+			# bit32_tabs.append({'32bit write blockram' : bit32_write_blockram_tab})
+			# bit32_tabs.append({'32bit write distributedram' : bit32_write_distributedram_tab})
+			# bit32_tabs.append({'32bit write shiftregister' : bit32_write_shiftregister_tab})
+
+
+
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
 		# print(json.dumps(list_of_param_dicts, indent=2)) # DEBUG
@@ -317,28 +402,28 @@ class ResultsHandler(object):
 		figure = Figure(self.metadata, self.target_speed, plotting_option['title'], plotting_option['savefig'])
 		fig_names = []
 
-		if self.generate_results_chapter:
-			rows_write = []
-			rows_read = []
-			self.__generate_first_column_for_tab(rows_write)
-			self.__generate_first_column_for_tab(rows_read)
-			self.__add_subsection(plotting_option['subsection'])
+		# if self.generate_results_chapter:
+		# 	rows_write = []
+		# 	rows_read = []
+		# 	self.__generate_first_column_for_tab(rows_write)
+		# 	self.__generate_first_column_for_tab(rows_read)
+		# 	self.__add_subsection(plotting_option['subsection'])
 		
-		tab_label = None
-		next_param_dict = None
-		is_last_param_dict = False
+		# tab_label = None
+		# next_param_dict = None
+		# is_last_param_dict = False
 		# tabs_to_append = {}
-		read_list = []
-		write_list = []
+		# read_list = []
+		# write_list = []
 		for i, param_dict in enumerate(list_of_param_dicts):
-			current_mode = param_dict['mode']
-			try:
-				next_param_dict = list_of_param_dicts[i+1]
-			except IndexError:
-				is_last_param_dict = True
+			# current_mode = param_dict['mode']
+			# try:
+			# 	next_param_dict = list_of_param_dicts[i+1]
+			# except IndexError:
+			# 	is_last_param_dict = True
 			
-			if not tab_label:
-				self.__add_subsubsection(param_dict['mode'])
+			# if not tab_label:
+			# 	self.__add_subsubsection(param_dict['mode'])
 
 			for j, result in enumerate(param_dict['third_param']):
 				x = param_dict['third_param'][result]['x']
@@ -358,61 +443,62 @@ class ResultsHandler(object):
 				fig_name = figure.save_fig(str(plot_index) + '_' + str(i), param_dict['mode'], param_dict['direction'])
 				fig_names.append({fig_name : fig_title})
 
+		self.__generate_subsection_based_on_plot_option(plotting_option, list_of_param_dicts, fig_names)
+			# print(json.dumps(fig_names, indent=2))
+			# if self.generate_results_chapter:
+			# 	if param_dict['direction'] == 'read':
+			# 		self.__append_next_column_to_tab(rows_read, param_dict)
+			# 	elif param_dict['direction'] == 'write':
+			# 		self.__append_next_column_to_tab(rows_write, param_dict)
+			# 	tab_label = str(param_dict['mode'] + ' {} {}')
 
-			if self.generate_results_chapter:
-				if param_dict['direction'] == 'read':
-					self.__append_next_column_to_tab(rows_read, param_dict)
-				elif param_dict['direction'] == 'write':
-					self.__append_next_column_to_tab(rows_write, param_dict)
-				tab_label = str(param_dict['mode'] + ' {} {}')
-
-				if (next_param_dict['first_param'] != param_dict['first_param']) or (next_param_dict['direction'] != param_dict['direction']): # Generating a tab per first_param and direction
-					if param_dict['direction'] == 'read':
-						# print("\nRead in", param_dict['mode'], param_dict['direction'], param_dict['first_param']) # DEBUG
-						# print(json.dumps(rows_read, indent=2))
-						read_list.append({str(param_dict['first_param']) + ' read 1': rows_read})
-						rows_read = []
-						self.__generate_first_column_for_tab(rows_read)
-					elif param_dict['direction'] == 'write':
-						# print("\nWrite in", param_dict['mode'], param_dict['direction'], param_dict['first_param']) # DEBUG
-						# print(json.dumps(rows_write, indent=2))
-						write_list.append({str(param_dict['first_param']) + ' wirte 1' : rows_write})
-						rows_write = []
-						self.__generate_first_column_for_tab(rows_write)
+			# 	if (next_param_dict['first_param'] != param_dict['first_param']) or (next_param_dict['direction'] != param_dict['direction']): # Generating a tab per first_param and direction
+			# 		if param_dict['direction'] == 'read':
+			# 			# print("\nRead in", param_dict['mode'], param_dict['direction'], param_dict['first_param']) # DEBUG
+			# 			# print(json.dumps(rows_read, indent=2))
+			# 			read_list.append({str(param_dict['first_param']) + ' read 1': rows_read})
+			# 			rows_read = []
+			# 			self.__generate_first_column_for_tab(rows_read)
+			# 		elif param_dict['direction'] == 'write':
+			# 			# print("\nWrite in", param_dict['mode'], param_dict['direction'], param_dict['first_param']) # DEBUG
+			# 			# print(json.dumps(rows_write, indent=2))
+			# 			write_list.append({str(param_dict['first_param']) + ' wirte 1' : rows_write})
+			# 			rows_write = []
+			# 			self.__generate_first_column_for_tab(rows_write)
 
 
-				if (next_param_dict['mode'] != current_mode) or is_last_param_dict:
-					if param_dict['direction'] == 'read':
-						# read_list.append({str(param_dict['first_param']) + ' read 2' : rows_read})
-						for read in read_list:
-							for r in read:
-								self.__add_tab(read[r], tab_label.format("read", r))
-					elif param_dict['direction'] == 'write':
-						# write_list.append({str(param_dict['first_param']) + ' write 2' : rows_write})
-						for write in write_list:
-							for w in write:
-								self.__add_tab(write[w], tab_label.format("write", w))
-					self.__organize_figures(fig_names)
-					fig_names = []
-					# if not read_list or not write_list: # Works only for patterns nonsym mode
-					# 	print("if not read_list or not write_list TRUE in ", param_dict['mode'], param_dict['first_param']) # DEBUG
-					# 	self.__add_tab(rows_read, tab_label.format("read", param_dict['first_param']))
-					# 	self.__add_tab(rows_write, tab_label.format("write", param_dict['first_param']))
-					print("Write list in", param_dict['mode'], param_dict['first_param']) # DEBUG
-					print(json.dumps(write_list, indent=2)) # DEBUG
+			# 	if (next_param_dict['mode'] != current_mode) or is_last_param_dict:
+			# 		if param_dict['direction'] == 'read':
+			# 			# read_list.append({str(param_dict['first_param']) + ' read 2' : rows_read})
+			# 			for read in read_list:
+			# 				for r in read:
+			# 					self.__add_tab(read[r], tab_label.format("read", r))
+			# 		elif param_dict['direction'] == 'write':
+			# 			# write_list.append({str(param_dict['first_param']) + ' write 2' : rows_write})
+			# 			for write in write_list:
+			# 				for w in write:
+			# 					self.__add_tab(write[w], tab_label.format("write", w))
+			# 		self.__organize_figures(fig_names)
+			# 		fig_names = []
+			# 		# if not read_list or not write_list: # Works only for patterns nonsym mode
+			# 		# 	print("if not read_list or not write_list TRUE in ", param_dict['mode'], param_dict['first_param']) # DEBUG
+			# 		# 	self.__add_tab(rows_read, tab_label.format("read", param_dict['first_param']))
+			# 		# 	self.__add_tab(rows_write, tab_label.format("write", param_dict['first_param']))
+			# 		# print("Write list in", param_dict['mode'], param_dict['first_param']) # DEBUG
+			# 		# print(json.dumps(write_list, indent=2)) # DEBUG
 
-					print("\nRead list in", param_dict['mode'], param_dict['first_param']) # DEBUG
-					print(json.dumps(read_list, indent=2)) # DEBUG
-					rows_read = []
-					rows_write = []
-					self.__generate_first_column_for_tab(rows_read)
-					self.__generate_first_column_for_tab(rows_write)
-					read_list = []
-					write_list = []
-					if not is_last_param_dict:
-						self.__add_subsubsection(next_param_dict['mode'])
-					else:
-						is_last_param_dict = False
+			# 		# print("\nRead list in", param_dict['mode'], param_dict['first_param']) # DEBUG
+			# 		# print(json.dumps(read_list, indent=2)) # DEBUG
+			# 		rows_read = []
+			# 		rows_write = []
+			# 		self.__generate_first_column_for_tab(rows_read)
+			# 		self.__generate_first_column_for_tab(rows_write)
+			# 		read_list = []
+			# 		write_list = []
+			# 		if not is_last_param_dict:
+			# 			self.__add_subsubsection(next_param_dict['mode'])
+			# 		else:
+			# 			is_last_param_dict = False
 		# '''
 
 
