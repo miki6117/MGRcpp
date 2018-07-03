@@ -18,7 +18,7 @@ PARAMETERS_SEPARATED = False
 
 """Generate LaTeX results chapter? (default: no)"""
 GENERATE_RESULTS_CHAPTER = True
-RESULTS_CHAPTER_FILE_NAME = 'results.tex'
+RESULTS_CHAPTER_FILE_NAME = 'results_ver2.tex'
 FIG_FOLDER = 'src/results/' # Where figures will be sotred in TeX project?
 
 
@@ -53,7 +53,7 @@ BASIC_PROPERTIES = {
 	'Mode' : ['nonsym', '32bit', 'duplex'],
 	'Direction' : ['read', 'write', 'bidir'],
 	'FifoMemoryType' : ['blockram', 'distributedram', 'shiftregister'],
-	'FifoDepth': [16, 32, 64, 256, 1024],
+	'FifoDepth': [16, 32, 64, 256, 1024, 2048], # TODO: 2048!!
 	'BlockSize': [16, 64, 256, 1024],
 	'DataPattern' : ['counter_8bit', 'counter_32bit', 'walking_1', 'asic']
 }
@@ -68,9 +68,10 @@ MODES_DICT = {
 """Combined parameters"""
 PLOTTING_OPTIONS = {
 	'memtype_depth_pattern' : {
-		'title' : 'Direction: {}. Fifo memory type: {}. Depth = {}',
+		# 'title' : 'Direction: {}. Fifo memory type: {}. Depth = {}',
+		'title' : 'Transfer results for \\textit{{{}}} direction, \\textit{{{}}} FIFO memory type with \\textit{{{}}} depth value.',
 		'subsection': 'Patterns',
-		'savefig' : '{}_{}_{}_patterns.png',
+		'savefig' : '{}_{}_{}_patterns.pdf',
 		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'FifoMemoryType',
 		'second_param' : 'FifoDepth',
@@ -83,9 +84,10 @@ PLOTTING_OPTIONS = {
 		}
 	},
 	'depth_pattern_memtype' : {
-		'title' : 'Direction: {}. Fifo depth: {}. Pattern type = {}',
+        # 'title' : 'Direction: {}. Fifo depth: {}. Pattern type = {}',
+		'title' : 'Transfer results for \\textit{{{}}} direction, \\textit{{{}}} FIFO depth value and \\textit{{{}}} pattern type.',
 		'subsection': 'Memory types',
-		'savefig' : '{}_{}_{}_memory_types.png',
+		'savefig' : '{}_{}_{}_memory_types.pdf',
 		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'FifoDepth',
 		'second_param' : 'DataPattern',
@@ -97,9 +99,10 @@ PLOTTING_OPTIONS = {
 		}
 	},
 	'pattern_memtype_depth' : {
-		'title' : 'Direction: {}. Pattern type: {}. Fifo memory type: {}',
+		# 'title' : 'Direction: {}. Pattern type: {}. Fifo memory type: {}',
+		'title' : 'Transfer results for \\textit{{{}}} direction, \\textit{{{}}} pattern type and \\textit{{{}}} FIFO memory type.',
 		'subsection': 'Depths',
-		'savefig' : '{}_{}_{}_depths.png',
+		'savefig' : '{}_{}_{}_depths.pdf',
 		'valid_modes': ['32bit', 'nonsym'],
 		'first_param' : 'DataPattern',
 		'second_param' : 'FifoMemoryType',
@@ -109,48 +112,49 @@ PLOTTING_OPTIONS = {
 			32 : 'y^',
 			64 : 'g*',
 			256 : 'b+',
-			1024 : 'mv'
-		}
-	},
-	'duplex_memtype_blocksize_pattern': {
-		'title': 'Fifo memory type: {}. Block size = {}',
-		'savefig': '{}_{}_{}_patterns.png',
-		'valid_modes': ['duplex'],
-		'first_param': 'FifoMemoryType',
-		'second_param': 'BlockSize',
-		'third_param': 'DataPattern',
-		'legend': {
-			'counter_8bit': 'ro',
-			'counter_32bit': 'g*',
-			'walking_1': 'b+',
-			'asic' : 'mv'
-		}
-	},
-	'duplex_blocksize_pattern_memtype': {
-		'title' : 'Block size: {}. Pattern type = {}',
-		'savefig' : '{}_{}_{}_memory_types.png',
-		'valid_modes': ['duplex'],
-		'first_param' : 'BlockSize',
-		'second_param' : 'DataPattern',
-		'third_param' : 'FifoMemoryType',
-		'legend' : {
-			'blockram' : 'ro',
-			'distributedram' : 'g*',
-			'shiftregister' : 'b+'
-		}
-	},
-	'duplex_pattern_memtype_blocksize': {
-		'title' : 'Pattern type: {}. Fifo memory type: {}',
-		'savefig' : '{}_{}_{}_blocksizes.png',
-		'valid_modes': ['duplex'],
-		'first_param' : 'DataPattern',
-		'second_param' : 'FifoMemoryType',
-		'third_param' : 'BlockSize',
-		'legend' : {
-			16 : 'ro',
-			64 : 'g*',
-			256 : 'b+',
-			1024 : 'mv'
+			1024 : 'mv',
+			2048 : 'r+'
 		}
 	}
+	# 'duplex_memtype_blocksize_pattern': {
+	# 	'title': 'Fifo memory type: {}. Block size = {}',
+	# 	'savefig': '{}_{}_{}_patterns.png',
+	# 	'valid_modes': ['duplex'],
+	# 	'first_param': 'FifoMemoryType',
+	# 	'second_param': 'BlockSize',
+	# 	'third_param': 'DataPattern',
+	# 	'legend': {
+	# 		'counter_8bit': 'ro',
+	# 		'counter_32bit': 'g*',
+	# 		'walking_1': 'b+',
+	# 		'asic' : 'mv'
+	# 	}
+	# },
+	# 'duplex_blocksize_pattern_memtype': {
+	# 	'title' : 'Block size: {}. Pattern type = {}',
+	# 	'savefig' : '{}_{}_{}_memory_types.png',
+	# 	'valid_modes': ['duplex'],
+	# 	'first_param' : 'BlockSize',
+	# 	'second_param' : 'DataPattern',
+	# 	'third_param' : 'FifoMemoryType',
+	# 	'legend' : {
+	# 		'blockram' : 'ro',
+	# 		'distributedram' : 'g*',
+	# 		'shiftregister' : 'b+'
+	# 	}
+	# },
+	# 'duplex_pattern_memtype_blocksize': {
+	# 	'title' : 'Pattern type: {}. Fifo memory type: {}',
+	# 	'savefig' : '{}_{}_{}_blocksizes.png',
+	# 	'valid_modes': ['duplex'],
+	# 	'first_param' : 'DataPattern',
+	# 	'second_param' : 'FifoMemoryType',
+	# 	'third_param' : 'BlockSize',
+	# 	'legend' : {
+	# 		16 : 'ro',
+	# 		64 : 'g*',
+	# 		256 : 'b+',
+	# 		1024 : 'mv'
+	# 	}
+	# }
 }

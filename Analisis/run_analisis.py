@@ -288,14 +288,15 @@ class ResultsHandler(object):
 
 	def __organize_figures(self, fig_names_list):
 		fig_init = "\\includegraphics[width=\\textwidth]{{{}}}"
-		minipage = '\\begin{{minipage}}{{0.5\\textwidth}}\n\t\\centering\n\t{}\n\t\\caption{{{}}}\n\\end{{minipage}}%\n'
+		minipage = '\\begin{{minipage}}{{0.48\\textwidth}}\n\t\\centering\n\t{}\n\t\\caption{{{}}}\n\\end{{minipage}}%\n'
 		is_new_line = False
 		for fig_name_dict in fig_names_list:
 			fig_name = ''.join(fig_name_dict.keys())
 			fig_title = ''.join(fig_name_dict.values())
 			if not is_new_line:
 				fig_declaration = '\\begin{figure}[H]\n\\centering\n'
-				fig_declaration += minipage.format(fig_init.format(self.fig_folder + fig_name), fig_title) 
+				fig_declaration += minipage.format(fig_init.format(self.fig_folder + fig_name), fig_title)
+				fig_declaration += '\\hspace{0.02\\textwidth}\n'
 				is_new_line = True
 			else:
 				fig_declaration += minipage[:-2].format(fig_init.format(self.fig_folder + fig_name), fig_title)
@@ -865,10 +866,10 @@ class Figure(object):
 	def set_title(self, *args):
 		if args:
 			fig_title = self.__fig_title.format(*args)
-			self.__ax.set_title(fig_title)
+			# self.__ax.set_title(fig_title)
 		else:
 			fig_title = self.__fig_title
-			self.__ax.title(fig_title)
+			# self.__ax.title(fig_title)
 		return fig_title
 
 	def save_fig(self, *args):
