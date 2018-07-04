@@ -234,7 +234,7 @@ class ResultsHandler(object):
 
 	def __generate_first_column_for_tab(self, rows, is_max_row_needed=True):
 		first_row = '\\textbf{Pattern size [B]} '
-		last_row = '\\textbf{Max} ' # TODO: Rename
+		last_row = '\\textbf{Most frequent parameter} ' # TODO: Rename
 		rows.append(first_row)
 		for size in self.x_param:
 			row = '\\multirow{{2}}{{*}}{{\\textbf{{{}}}}}'.format(size)
@@ -317,7 +317,7 @@ class ResultsHandler(object):
 		col_numb = len(rows[0].split('&')) - 1
 		width_ratio = "{0:.2f}".format(1 / (col_numb+1))
 		col_separator = ' | P{{{}\\textwidth-2\\tabcolsep}}'.format(width_ratio) 
-		begin_with_tab_label = "\\begin{{center}}\n\t\\begin{{tab}}\n\t\t{}\n\t\\end{{tab}}\n\t\\footnotesize\n".format(tab_label)
+		begin_with_tab_label = "\\newpage\n\\begin{{center}}\n\t\\begin{{tab}}\n\t\t{}\n\t\\end{{tab}}\n\t\\footnotesize\n".format(tab_label)
 		begin_tabular_with_specified_no_of_columns = "\t\\begin{{tabular}}{{| p{{{}\\textwidth-2\\tabcolsep}}{} |}}\n\\hline\n".format(width_ratio, col_separator * col_numb)
 		self.__append_string_to_chapter_file(begin_with_tab_label)
 		self.__append_string_to_chapter_file(begin_tabular_with_specified_no_of_columns)
@@ -378,16 +378,16 @@ class ResultsHandler(object):
 			self.__add_subsection('Patterns')
 			self.__add_subsubsection('nonsym')
 			self.__organize_figures(nonsym_figs)
-			self.__add_tab(nonsym_read_blockram_tab, 'nonsym read blockram')
-			self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
+			self.__add_tab(nonsym_read_blockram_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{nonsym} mode, \\textit{read} direction, \\textit{blockram} FIFO memory type).')
+			self.__add_tab(nonsym_write_blockram_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{nonsym} mode, \\textit{write} direction, \\textit{blockram} FIFO memory type).')
 			self.__add_subsubsection('32bit')
 			self.__organize_figures(bit32_figs)
-			self.__add_tab(bit32_read_blockram_tab, '32bit read blockram')
-			self.__add_tab(bit32_read_distributedram_tab, '32bit read distributedram')
-			self.__add_tab(bit32_read_shiftregister_tab, '32bit read shiftregister')
-			self.__add_tab(bit32_write_blockram_tab, '32bit write blockram')
-			self.__add_tab(bit32_write_distributedram_tab, '32bit write distributedram')
-			self.__add_tab(bit32_write_shiftregister_tab, '32bit write shiftregister')
+			self.__add_tab(bit32_read_blockram_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{32bit} mode, \\textit{read} direction, \\textit{blockram} FIFO memory type).')
+			self.__add_tab(bit32_read_distributedram_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{32bit} mode, \\textit{read} direction, \\textit{distributedram} FIFO memory type).')
+			self.__add_tab(bit32_read_shiftregister_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{32bit} mode, \\textit{read} direction, \\textit{shiftregister} FIFO memory type).')
+			self.__add_tab(bit32_write_blockram_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{32bit} mode, \\textit{write} direction, \\textit{blockram} FIFO memory type).')
+			self.__add_tab(bit32_write_distributedram_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{32bit} mode, \\textit{write} direction, \\textit{distributedram} FIFO memory type).')
+			self.__add_tab(bit32_write_shiftregister_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between depth values (\\textit{32bit} mode, \\textit{write} direction, \\textit{shiftregister} FIFO memory type).')
 
 		elif ploting_option['subsection'] == 'Memory types': # TODO: tabs for nonsym mode!
 			nonsym_1632_read_write_tab = []
@@ -638,24 +638,24 @@ class ResultsHandler(object):
 			self.__add_subsection('Memory types')
 			self.__add_subsubsection('nonsym')
 			self.__organize_figures(nonsym_figs)
-			self.__add_tab(nonsym_1632_read_write_tab, 'nonsym 16 read 32 write blockram')
-			self.__add_tab(nonsym_64_read_write_tab, 'nonsym 64 read 64 write blockram')
-			self.__add_tab(nonsym_256_read_write_tab, 'nonsym 256 read 256 write blockram')
-			self.__add_tab(nonsym_1024_read_write_tab, 'nonsym 1024 read 1024 write blockram')
-			self.__add_tab(nonsym_2048_read_write_tab, 'nonsym 2048 read 2048 write blockram')
+			self.__add_tab(nonsym_1632_read_write_tab, 'Speed results (in MB/s) for blockram memory type in nonsym mode. The first value in cells concerns 16 depth value for read direction and the second one in the square bracket concerns 32 depth value for write direction.')
+			self.__add_tab(nonsym_64_read_write_tab, 'Speed results (in MB/s) for blockram memory type in nonsym mode. The first value in cells concerns 64 depth value for read direction and the second one in the square bracket concerns 64 depth value for write direction.')
+			self.__add_tab(nonsym_256_read_write_tab, 'Speed results (in MB/s) for blockram memory type in nonsym mode. The first value in cells concerns 256 depth value for read direction and the second one in the square bracket concerns 256 depth value for write direction.')
+			self.__add_tab(nonsym_1024_read_write_tab, 'Speed results (in MB/s) for blockram memory type in nonsym mode. The first value in cells concerns 1024 depth value for read direction and the second one in the square bracket concerns 1024 depth value for write direction.')
+			self.__add_tab(nonsym_2048_read_write_tab, 'Speed results (in MB/s) for blockram memory type in nonsym mode. The first value in cells concerns 2048 depth value for read direction and the second one in the square bracket concerns 2048 depth value for write direction.')
 			# self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
 			self.__add_subsubsection('32bit')
 			self.__organize_figures(bit32_figs)
-			self.__add_tab(bit32_read_16_tab, '32bit read 16')
-			self.__add_tab(bit32_read_64_tab, '32bit read 64')
-			self.__add_tab(bit32_read_256_tab, '32bit read 256')
-			self.__add_tab(bit32_read_1024_tab, '32bit read 1024')
-			self.__add_tab(bit32_read_2048_tab, '32bit read 2048')
-			self.__add_tab(bit32_write_16_tab, '32bit write 16')
-			self.__add_tab(bit32_write_64_tab, '32bit write 64')
-			self.__add_tab(bit32_write_256_tab, '32bit write 256')
-			self.__add_tab(bit32_write_1024_tab, '32bit write 1024')
-			self.__add_tab(bit32_write_2048_tab, '32bit write 2048')
+			self.__add_tab(bit32_read_16_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, read direction, 16 depth value).')
+			self.__add_tab(bit32_read_64_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, read direction, 64 depth value).')
+			self.__add_tab(bit32_read_256_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, read direction, 256 depth value).')
+			self.__add_tab(bit32_read_1024_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, read direction, 1024 depth value).')
+			self.__add_tab(bit32_read_2048_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, read direction, 2048 depth value).')
+			self.__add_tab(bit32_write_16_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, write direction, 16 depth value).')
+			self.__add_tab(bit32_write_64_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, write direction, 64 depth value).')
+			self.__add_tab(bit32_write_256_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, write direction, 256 depth value).')
+			self.__add_tab(bit32_write_1024_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, write direction, 1024 depth value).')
+			self.__add_tab(bit32_write_2048_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, write direction, 2048 depth value).')
 
 		elif ploting_option['subsection'] == 'Depths': # TODO: tabs for nonsym mode!
 			nonsym_read_tab = []
@@ -714,17 +714,17 @@ class ResultsHandler(object):
 			self.__add_subsection('Depths')
 			self.__add_subsubsection('nonsym')
 			self.__organize_figures(nonsym_figs)
-			self.__add_tab(nonsym_read_tab, 'nonsym read blockram')
-			self.__add_tab(nonsym_write_tab, 'nonsym read blockram')
+			self.__add_tab(nonsym_read_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between pattern types (nonsym mode, read direction, blockram memory type).')
+			self.__add_tab(nonsym_write_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between pattern types (nonsym mode, write direction, blockram memory type).')
 			# self.__add_tab(nonsym_write_blockram_tab, 'nonsym write blockram')
 			self.__add_subsubsection('32bit')
 			self.__organize_figures(bit32_figs)
-			self.__add_tab(bit32_read_counter_8bit_tab, '32bit read counter_8bit')
-			self.__add_tab(bit32_read_counter_32bit_tab, '32bit read counter_32bit')
-			self.__add_tab(bit32_read_walking_1_tab, '32bit read walking_1')
-			self.__add_tab(bit32_write_counter_8bit_tab, '32bit write counter_8bit')
-			self.__add_tab(bit32_write_counter_32bit_tab, '32bit write counter_32bit')
-			self.__add_tab(bit32_write_walking_1_tab, '32bit write walking_1')
+			self.__add_tab(bit32_read_counter_8bit_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, read direction, counter_8bit pattern type).')
+			self.__add_tab(bit32_read_counter_32bit_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, read direction, counter_32bit pattern type).')
+			self.__add_tab(bit32_read_walking_1_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, read direction, walking_1 pattern type).')
+			self.__add_tab(bit32_write_counter_8bit_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, write direction, counter_8bit pattern type).')
+			self.__add_tab(bit32_write_counter_32bit_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, write direction, counter_32bit pattern type).')
+			self.__add_tab(bit32_write_walking_1_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, write direction, walking_1 pattern type).')
 
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
