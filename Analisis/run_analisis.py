@@ -232,12 +232,15 @@ class ResultsHandler(object):
 		with open(self.chapter_file_name, "a") as fd:
 			fd.write(string_to_append)
 
-	def __generate_first_column_for_tab(self, rows, is_max_row_needed=True):
+	def __generate_first_column_for_tab(self, rows, is_max_row_needed=True, is_multirow=True):
 		first_row = '\\textbf{Pattern size [B]} '
 		last_row = '\\textbf{Most frequent parameter} ' # TODO: Rename
 		rows.append(first_row)
 		for size in self.x_param:
-			row = '\\multirow{{2}}{{*}}{{\\textbf{{{}}}}}'.format(size)
+			if is_multirow:
+				row = '\\multirow{{2}}{{*}}{{\\textbf{{{}}}}}'.format(size)
+			else:
+				row = '\\textbf{{{}}}'.format(size)
 			rows.append(row)
 		if is_max_row_needed:
 			rows.append(last_row)
@@ -285,6 +288,21 @@ class ResultsHandler(object):
 				rows[i+1] += row
 			except IndexError:
 				break
+
+	def __append_columns_for_duplex_mode(self, rows, param_dict):
+		for third_param in param_dict['third_param']:
+			column_name = self.__refactor_string_to_latex_standard(str(third_param))
+			rows[0] += (' & ' + '\\textbf{{{}}}'.format(column_name))
+			# for param in param_dict['third_param'][third_param]:
+			for i, y in enumerate(param_dict['third_param'][third_param]['y']):
+				try:
+					third_param_val = "{}".format("{0:.4f}".format(y))
+					third_param_val = self.__refactor_string_to_latex_standard(third_param_val)
+					row = ' & ' + third_param_val
+					rows[i+1] += row
+				except IndexError:
+					break
+
 
 	def __organize_figures(self, fig_names_list):
 		fig_init = "\\includegraphics[width=\\textwidth]{{{}}}"
@@ -339,7 +357,7 @@ class ResultsHandler(object):
 			elif '32bit' in ''.join(fig.keys()):
 				bit32_figs.append(fig)
 			elif 'duplex' in ''.join(fig.keys()):
-				duplex.append(fig)
+				duplex_figs.append(fig)
 
 		if ploting_option['subsection'] == 'Patterns':
 			nonsym_read_blockram_tab = []
@@ -774,12 +792,31 @@ class ResultsHandler(object):
 				# 	if str(param_dict['third_param']) == 'walking_1':
 				# 		self.__append_next_column_to_tab(blockram_1024_blocksize_tab, param_dict, 'walking_1')
 
-			self.__add_subsection('Pseudo-duplex block sizes')
+			self.__add_subsection('Pseudo-duplex patterns')
 			self.__organize_figures(duplex_figs)
 			self.__add_tab(duplex_blocksizes_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between block sizes (duplex mode).')
 
-		# elif ploting_option['subsection'] == 'Pseudo-duplex patterns':
+		elif ploting_option['subsection'] == 'Pseudo-duplex block sizes':
+			duplex_counter_8bit_tab = []
+			duplex_counter_32bit_tab = []
+			duplex_walking_1_tab = []
+			self.__generate_first_column_for_tab(duplex_counter_8bit_tab, False, False)
+			self.__generate_first_column_for_tab(duplex_counter_32bit_tab, False, False)
+			self.__generate_first_column_for_tab(duplex_walking_1_tab, False, False)
 
+			for param_dict in list_of_param_dict:
+				if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'counter_8bit':
+					self.__append_columns_for_duplex_mode(duplex_counter_8bit_tab, param_dict)
+				if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'counter_32bit':
+					self.__append_columns_for_duplex_mode(duplex_counter_32bit_tab, param_dict)
+				if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'walking_1':
+					self.__append_columns_for_duplex_mode(duplex_walking_1_tab, param_dict)
+			
+			self.__add_subsection('Pseudo-duplex block sizes')
+			self.__organize_figures(duplex_figs)
+			self.__add_tab(duplex_counter_8bit_tab, 'Total speed transfer (in MB/s) depending on the block size for counter_8bit pattern type.')
+			self.__add_tab(duplex_counter_32bit_tab, 'Total speed transfer (in MB/s) depending on the block size for counter_32bit pattern type.')
+			self.__add_tab(duplex_walking_1_tab, 'Total speed transfer (in MB/s) depending on the block size for walking_1 pattern type.')
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
 		list_of_param_dicts = self.list_of_results_with_parameters(plotting_option)
