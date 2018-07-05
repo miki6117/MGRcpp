@@ -332,11 +332,14 @@ class ResultsHandler(object):
 	def __generate_subsection_based_on_plot_option(self, ploting_option, list_of_param_dict, all_fig_names):
 		nonsym_figs = []
 		bit32_figs = []
+		duplex_figs = []
 		for fig in all_fig_names:
 			if 'nonsym' in ''.join(fig.keys()):
 				nonsym_figs.append(fig)
 			elif '32bit' in ''.join(fig.keys()):
 				bit32_figs.append(fig)
+			elif 'duplex' in ''.join(fig.keys()):
+				duplex.append(fig)
 
 		if ploting_option['subsection'] == 'Patterns':
 			nonsym_read_blockram_tab = []
@@ -657,7 +660,7 @@ class ResultsHandler(object):
 			self.__add_tab(bit32_write_1024_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, write direction, 1024 depth value).')
 			self.__add_tab(bit32_write_2048_tab, 'The fastest memory types (values in square brackets are in MB/s) compared between pattern types (32bit mode, write direction, 2048 depth value).')
 
-		elif ploting_option['subsection'] == 'Depths': # TODO: tabs for nonsym mode!
+		elif ploting_option['subsection'] == 'Depths':
 			nonsym_read_tab = []
 			nonsym_write_tab = []
 			bit32_read_counter_8bit_tab = []
@@ -725,6 +728,57 @@ class ResultsHandler(object):
 			self.__add_tab(bit32_write_counter_8bit_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, write direction, counter_8bit pattern type).')
 			self.__add_tab(bit32_write_counter_32bit_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, write direction, counter_32bit pattern type).')
 			self.__add_tab(bit32_write_walking_1_tab, 'The fastest depth values (speeds in square brackets are in MB/s) compared between memory types (32bit mode, write direction, walking_1 pattern type).')
+
+		elif ploting_option['subsection'] == 'Pseudo-duplex patterns':
+			# blockram_16_blocksize_tab = []
+			# blockram_64_blocksize_tab = []
+			# blockram_256_blocksize_tab = []
+			# blockram_1024_blocksize_tab = []
+
+			# self.__generate_first_column_for_tab(blockram_16_blocksize_tab)
+			# self.__generate_first_column_for_tab(blockram_64_blocksize_tab)
+			# self.__generate_first_column_for_tab(blockram_256_blocksize_tab)
+			# self.__generate_first_column_for_tab(blockram_1024_blocksize_tab)
+			duplex_blocksizes_tab = []
+			self.__generate_first_column_for_tab(duplex_blocksizes_tab)
+
+			for param_dict in list_of_param_dict:
+				# if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'blockram' and str(param_dict['second_param']) == '16':
+				if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'blockram':
+					self.__append_next_column_to_tab(duplex_blocksizes_tab, param_dict)
+					# if str(param_dict['third_param']) == 'counter_8bit':
+					# 	self.__append_next_column_to_tab(blockram_16_blocksize_tab, param_dict, 'counter_8bit')
+					# if str(param_dict['third_param']) == 'counter_32bit':
+					# 	self.__append_next_column_to_tab(blockram_16_blocksize_tab, param_dict, 'counter_32bit')
+					# if str(param_dict['third_param']) == 'walking_1':
+					# 	self.__append_next_column_to_tab(blockram_16_blocksize_tab, param_dict, 'walking_1')
+				# if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'blockram' and str(param_dict['second_param']) == '64':
+				# 	if str(param_dict['third_param']) == 'counter_8bit':
+				# 		self.__append_next_column_to_tab(blockram_64_blocksize_tab, param_dict, 'counter_8bit')
+				# 	if str(param_dict['third_param']) == 'counter_32bit':
+				# 		self.__append_next_column_to_tab(blockram_64_blocksize_tab, param_dict, 'counter_32bit')
+				# 	if str(param_dict['third_param']) == 'walking_1':
+				# 		self.__append_next_column_to_tab(blockram_64_blocksize_tab, param_dict, 'walking_1')
+				# if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'blockram' and str(param_dict['second_param']) == '256':
+				# 	if str(param_dict['third_param']) == 'counter_8bit':
+				# 		self.__append_next_column_to_tab(blockram_256_blocksize_tab, param_dict, 'counter_8bit')
+				# 	if str(param_dict['third_param']) == 'counter_32bit':
+				# 		self.__append_next_column_to_tab(blockram_256_blocksize_tab, param_dict, 'counter_32bit')
+				# 	if str(param_dict['third_param']) == 'walking_1':
+				# 		self.__append_next_column_to_tab(blockram_256_blocksize_tab, param_dict, 'walking_1')
+				# if param_dict['mode'] == 'duplex' and param_dict['first_param'] == 'blockram' and str(param_dict['second_param']) == '1024':
+				# 	if str(param_dict['third_param']) == 'counter_8bit':
+				# 		self.__append_next_column_to_tab(blockram_1024_blocksize_tab, param_dict, 'counter_8bit')
+				# 	if str(param_dict['third_param']) == 'counter_32bit':
+				# 		self.__append_next_column_to_tab(blockram_1024_blocksize_tab, param_dict, 'counter_32bit')
+				# 	if str(param_dict['third_param']) == 'walking_1':
+				# 		self.__append_next_column_to_tab(blockram_1024_blocksize_tab, param_dict, 'walking_1')
+
+			self.__add_subsection('Pseudo-duplex block sizes')
+			self.__organize_figures(duplex_figs)
+			self.__add_tab(duplex_blocksizes_tab, 'The fastest pattern types (values in square brackets are in MB/s) compared between block sizes (duplex mode).')
+
+		# elif ploting_option['subsection'] == 'Pseudo-duplex patterns':
 
 
 	def handle_results(self, plotting_option, plot_index, separate_third_parameters=False):
@@ -866,10 +920,12 @@ class Figure(object):
 	def set_title(self, *args):
 		if args:
 			fig_title = self.__fig_title.format(*args)
-			# self.__ax.set_title(fig_title)
+			if SET_TITLES_IN_FIGS:
+				self.__ax.set_title(fig_title)
 		else:
 			fig_title = self.__fig_title
-			# self.__ax.title(fig_title)
+			if SET_TITLES_IN_FIGS:
+				self.__ax.title(fig_title)
 		return fig_title
 
 	def save_fig(self, *args):
