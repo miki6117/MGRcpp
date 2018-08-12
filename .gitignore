@@ -29,3 +29,4 @@ HDL/src/nonsym/*.bit
 HDL/src/duplex/bidir/*
 HDL/src/duplex/*.bit
 !HDL/src/duplex/bidir/bidir_duplex_fifo.v
+HDL/src/nonsym/write/okLibrary.v
